@@ -26,7 +26,6 @@ Global="*res://scenes/globals/global.tscn"
 Conductor="*res://scenes/globals/conductor.tscn"
 Overlay="*res://scenes/globals/overlay.tscn"
 DiscordRPCLoader="*res://addons/discord-rpc-gd/nodes/discord_autoload.gd"
-GSClient="*res://addons/gspot/gsclient.gd"
 
 [display]
 

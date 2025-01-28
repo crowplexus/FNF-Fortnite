@@ -103,12 +103,20 @@ grow_vertical = 2
 script = ExtResource("5_adscm")
 
 [node name="judgement" type="Sprite2D" parent="combo_group"]
+metadata/velocity = Vector2(0, 0)
+metadata/acceleration = Vector2(0, 0)
 
 [node name="combo_digit0" type="Sprite2D" parent="combo_group"]
+metadata/velocity = Vector2(0, 0)
+metadata/acceleration = Vector2(0, 0)
 
 [node name="combo_digit1" type="Sprite2D" parent="combo_group"]
+metadata/velocity = Vector2(0, 0)
+metadata/acceleration = Vector2(0, 0)
 
 [node name="combo_digit2" type="Sprite2D" parent="combo_group"]
+metadata/velocity = Vector2(0, 0)
+metadata/acceleration = Vector2(0, 0)
 
 [node name="note_fields" type="Control" parent="."]
 layout_mode = 1
