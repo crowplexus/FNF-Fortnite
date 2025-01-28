@@ -1,0 +1,86 @@
+extends Node
+
+enum NoteDeletionType {
+	DIE = 0,
+	HIT = 1,
+}
+
+const TEMPLATE_NOTE: PackedScene = preload("res://scenes/gameplay/playfield/notes/normal_note.tscn")
+
+signal on_note_spawned(data: NoteData, note: NoteObject)
+signal on_note_deleted(type: NoteDeletionType, note: NoteObject)
+
+@export var active: bool = true
+var colours: Array[StringName] = [ &"purple", &"blue", &"green", &"red", ]
+var note_list: Array[NoteData] = []
+var max_hit_window: float = 180.0
+var list_position: int = 0
+
+func _ready() -> void:
+	list_position = 0
+	for i: int in 20: # precache this many notes
+		var preload_note: = TEMPLATE_NOTE.instantiate()
+		preload_note.name = "preload%s" % str(i)
+		preload_note.hide()
+		add_child(preload_note)
+
+
+func _process(_delta: float) -> void:
+	if not active or spawning_complete():
+		return
+	
+	try_spawning()
+	move_present_nodes()
+
+
+func spawning_complete() -> bool:
+	return note_list.size() == 0 or list_position >= note_list.size()
+
+
+func move_present_nodes() -> void:
+	for i: int in get_child_count():
+		var node: NoteObject = get_child(i)
+		if not node.visible:
+			continue
+		# TODO: move to note class
+		var data: NoteData = NoteData.EMPTY
+		if node.data: data = node.data
+		var rel_time: float = Conductor.time - data.time
+		const magic_number: float = 100 # REMOVE THIS LATER LOL
+		node.position.y = rel_time * (450.0 * data.speed) / absf(node.scale.y) - magic_number
+		node.position.y *= -1
+		if data.time <= Conductor.time and (not node.note_field or node.note_field.cpu):
+			on_note_deleted.emit(NoteDeletionType.HIT, node)
+			if data.side == 1: node.display_splash()
+			node.hide()
+		if rel_time > 0.8:
+			on_note_deleted.emit(NoteDeletionType.DIE, node)
+			node.hide()
+
+
+func try_spawning() -> void:
+	while list_position < note_list.size():
+		var note_data: NoteData = note_list[list_position]
+		if absf(note_data.time - Conductor.time) > 0.8: break
+
+		var new_note: NoteObject = get_note()
+		new_note.data = note_data
+		new_note.was_missed = false
+		new_note.was_hit = false
+		new_note.reload(note_data)
+		on_note_spawned.emit(note_data, new_note)
+		new_note.show()
+		list_position += 1#= clampi(list_position + 1, 0, note_list.size())
+		#print_debug("spawned at ", Conductor.time)
+		#print(list_position)
+
+
+func get_note() -> Node:
+	for node: Node in get_children():
+		if not node.visible:
+			return node
+	var duped: = TEMPLATE_NOTE.instantiate()
+	duped.name = "note%s" % [ list_position ]
+	duped.hide()
+	add_child(duped)
+	return duped

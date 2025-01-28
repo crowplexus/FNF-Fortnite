@@ -1,0 +1,95 @@
+[gd_scene load_steps=8 format=3 uid="uid://br6ornbfmuj7l"]
+
+[ext_resource type="StyleBox" uid="uid://bb871j4np30b4" path="res://scenes/gameplay/hud/health_bar_red.tres" id="1_4bvox"]
+[ext_resource type="Script" uid="uid://cj82y7wjxiftj" path="res://scenes/gameplay/hud/default_hud.gd" id="1_liwuh"]
+[ext_resource type="FontFile" uid="uid://eqlodoqk2jjg" path="res://assets/ui/fonts/vcr.ttf" id="1_r1kje"]
+[ext_resource type="StyleBox" uid="uid://bdag5e631yhvt" path="res://scenes/gameplay/hud/health_bar_green.tres" id="2_liwuh"]
+[ext_resource type="Script" uid="uid://dxoh2eni26dvh" path="res://scenes/gameplay/hud/combo_group.gd" id="5_adscm"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_it28e"]
+bg_color = Color(0, 0, 0, 1)
+draw_center = false
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 1
+anti_aliasing = false
+
+[sub_resource type="LabelSettings" id="LabelSettings_it28e"]
+font = ExtResource("1_r1kje")
+outline_size = 6
+outline_color = Color(0, 0, 0, 1)
+
+[node name="default_hud" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_liwuh")
+
+[node name="health_bar" type="ProgressBar" parent="."]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -296.0
+offset_top = -54.0
+offset_right = 295.0
+offset_bottom = -44.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/background = ExtResource("1_4bvox")
+theme_override_styles/fill = ExtResource("2_liwuh")
+value = 50.0
+fill_mode = 1
+show_percentage = false
+
+[node name="panel" type="Panel" parent="health_bar"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = -0.008
+anchor_right = 1.01
+anchor_bottom = 1.5
+offset_left = -0.272
+offset_top = -5.0
+offset_right = 0.0900269
+theme_override_styles/panel = SubResource("StyleBoxFlat_it28e")
+
+[node name="score_text" type="Label" parent="health_bar"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = -0.002
+anchor_top = 2.5
+anchor_right = 1.002
+anchor_bottom = 4.0
+offset_left = 0.182
+offset_right = -0.182068
+grow_horizontal = 2
+grow_vertical = 2
+text = "Score: 0 | Misses: 0 | Accuracy: 0%"
+label_settings = SubResource("LabelSettings_it28e")
+horizontal_alignment = 1
+
+[node name="combo_group" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("5_adscm")
+max_sprites = null

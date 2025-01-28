@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=3 uid="uid://cvf84mr6iepcs"]
+
+[ext_resource type="Script" uid="uid://btgjnxmxnkh14" path="res://scenes/gameplay/gameplay.gd" id="1_7biu0"]
+[ext_resource type="PackedScene" uid="uid://br6ornbfmuj7l" path="res://scenes/gameplay/hud/default_hud.tscn" id="2_x0t60"]
+
+[sub_resource type="AudioStreamSynchronized" id="AudioStreamSynchronized_7biu0"]
+stream_count = 3
+stream_0/volume = 0.0
+stream_1/volume = 0.0
+stream_2/volume = 0.0
+
+[node name="gameplay" type="Node2D"]
+script = ExtResource("1_7biu0")
+
+[node name="music_player" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = SubResource("AudioStreamSynchronized_7biu0")
+
+[node name="heads_up_display" parent="." instance=ExtResource("2_x0t60")]
+offset_right = 1280.0
+offset_bottom = 720.0

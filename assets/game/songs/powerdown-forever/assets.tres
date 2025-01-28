@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ChartAssets" load_steps=5 format=3 uid="uid://5xtaaxxy64ih"]
+
+[ext_resource type="Script" uid="uid://ba0wwnyur88ga" path="res://scripts/data/chart_assets.gd" id="1_a12kl"]
+[ext_resource type="AudioStream" uid="uid://cwg544rjx4pfn" path="res://assets/game/songs/powerdown-forever/audio/Inst.ogg" id="1_y1771"]
+[ext_resource type="Resource" uid="uid://dxhq200ow8ypp" path="res://assets/default/noteskin.tres" id="2_i41u7"]
+[ext_resource type="AudioStream" uid="uid://cbj1kriagfbjf" path="res://assets/game/songs/powerdown-forever/audio/Voices.ogg" id="4_5epka"]
+
+[resource]
+script = ExtResource("1_a12kl")
+instrumental = ExtResource("1_y1771")
+vocals = Array[AudioStream]([ExtResource("4_5epka")])
+note_skin = ExtResource("2_i41u7")
+metadata/_custom_type_script = ExtResource("1_a12kl")

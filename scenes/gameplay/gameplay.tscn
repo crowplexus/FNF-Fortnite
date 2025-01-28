@@ -1,0 +1,33 @@
+[gd_scene load_steps=6 format=3 uid="uid://cvf84mr6iepcs"]
+
+[ext_resource type="Script" uid="uid://btgjnxmxnkh14" path="res://scenes/gameplay/gameplay.gd" id="1_7biu0"]
+[ext_resource type="PackedScene" uid="uid://br6ornbfmuj7l" path="res://scenes/gameplay/hud/default_hud.tscn" id="2_x0t60"]
+[ext_resource type="Script" uid="uid://c3dm5njdcq7if" path="res://scenes/gameplay/playfield/note_group.gd" id="4_q64rj"]
+[ext_resource type="AudioStream" uid="uid://fo6ulwenanwk" path="res://assets/sounds/hitsound.ogg" id="5_q64rj"]
+
+[sub_resource type="AudioStreamSynchronized" id="AudioStreamSynchronized_7biu0"]
+stream_count = 3
+stream_0/volume = 0.0
+stream_1/volume = 0.0
+stream_2/volume = 0.0
+
+[node name="gameplay" type="Node2D"]
+script = ExtResource("1_7biu0")
+
+[node name="music_player" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = SubResource("AudioStreamSynchronized_7biu0")
+bus = &"Music"
+
+[node name="hud_layer" type="CanvasLayer" parent="."]
+
+[node name="hud" parent="hud_layer" instance=ExtResource("2_x0t60")]
+
+[node name="note_group" type="Node" parent="hud_layer"]
+script = ExtResource("4_q64rj")
+
+[node name="scream" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_q64rj")
+volume_db = -6.021
+max_polyphony = 16
+bus = &"Sound Effects"
