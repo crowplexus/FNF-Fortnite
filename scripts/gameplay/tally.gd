@@ -65,7 +65,7 @@ func update_accuracy(time: float) -> void:
 			accuracy_points += calc_judgement_points(judge_time(time))
 			accuracy = accuracy_points / (notes_hit_count + misses)
 
-## Calculate the score for a single hit.
+## Calculate the accuracy points for a single hit (in milliseconds).
 static func calc_max_points(tier: int, time: float) -> float:
 	if tier == MISS_TIER: return MISS_POINTS
 	var max_points: float = 100.0 - (tier * POINTS_WEIGHT)
