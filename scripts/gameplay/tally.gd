@@ -55,8 +55,18 @@ func increase_combo(amount: int) -> void:
 	# never decrease this idk
 	notes_hit_count += 1
 
+## Updates the accuracy currently displayed.
+func update_accuracy(time: float) -> void:
+	match score_system:
+		ScoringSystem.HitTime:
+			accuracy_points += calc_max_points(judge_time(time), time)
+			accuracy = accuracy_points / (notes_hit_count + misses)
+		_:
+			accuracy_points += calc_judgement_points(judge_time(time))
+			accuracy = accuracy_points / (notes_hit_count + misses)
+
 ## Calculate the score for a single hit.
-func calc_max_points(tier: int, time: float) -> float:
+static func calc_max_points(tier: int, time: float) -> float:
 	if tier == MISS_TIER: return MISS_POINTS
 	var max_points: float = 100.0 - (tier * POINTS_WEIGHT)
 	if tier == 0 or (tier == 1 and not Global.settings.use_epics):
@@ -71,16 +81,6 @@ static func calc_judgement_points(tier: int) -> float:
 	if tier == 0 or (not Global.settings.use_epics and tier == 1):
 		points = 100.0
 	return points
-
-## Updates the accuracy currently displayed.
-func update_accuracy(time: float) -> void:
-	match score_system:
-		ScoringSystem.HitTime:
-			accuracy_points += calc_max_points(judge_time(time), time)
-			accuracy = accuracy_points / (notes_hit_count + misses)
-		_:
-			accuracy_points += calc_judgement_points(judge_time(time))
-			accuracy = accuracy_points / (notes_hit_count + misses)
 
 ## Returns a judgement tier based on the time provided.[br]
 ## Tier 0 (Epic) will never get returned if disabled in settings.
