@@ -11,7 +11,6 @@
 [sub_resource type="Resource" id="Resource_spwge"]
 script = ExtResource("1_spwge")
 name = &"Epic"
-timing = 22.5
 texture = ExtResource("2_bo766")
 splash_type = 2
 combo_break = false
@@ -20,7 +19,6 @@ metadata/_custom_type_script = ExtResource("1_spwge")
 [sub_resource type="Resource" id="Resource_ka624"]
 script = ExtResource("1_spwge")
 name = &"Sick"
-timing = 45.0
 texture = ExtResource("3_4ogmi")
 splash_type = 1
 combo_break = false
@@ -29,7 +27,6 @@ metadata/_custom_type_script = ExtResource("1_spwge")
 [sub_resource type="Resource" id="Resource_ya0cj"]
 script = ExtResource("1_spwge")
 name = &"Good"
-timing = 90.0
 texture = ExtResource("4_xqy8v")
 splash_type = 0
 combo_break = false
@@ -38,7 +35,6 @@ metadata/_custom_type_script = ExtResource("1_spwge")
 [sub_resource type="Resource" id="Resource_i6s6j"]
 script = ExtResource("1_spwge")
 name = &"Bad"
-timing = 135.0
 texture = ExtResource("5_xkcep")
 splash_type = 0
 combo_break = false
@@ -47,7 +43,6 @@ metadata/_custom_type_script = ExtResource("1_spwge")
 [sub_resource type="Resource" id="Resource_xs71s"]
 script = ExtResource("1_spwge")
 name = &"Shit"
-timing = 180.0
 texture = ExtResource("6_02ne8")
 splash_type = 0
 combo_break = false

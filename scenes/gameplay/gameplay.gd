@@ -144,11 +144,11 @@ func on_note_hit(note: NoteObject) -> void:
 	if note.forced_splash or judgement.splash_type != Judgement.SplashType.DISABLED:
 		note.display_splash()
 	note.hide()
-	tally.increase_score(abs_diff)
+	tally.increase_score(abs_diff * 1000.0)
 	if judgement.combo_break:
 		tally.combo = 0
 	tally.increase_combo(1)
-	tally.update_accuracy(note.data.time)
+	tally.update_accuracy(abs_diff * 1000.0)
 	hud.display_judgement(judgement.texture)
 	hud.display_combo(tally.combo)
 	hud.update_score_text()

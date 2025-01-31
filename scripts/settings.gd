@@ -20,7 +20,7 @@ var scroll: int = 0
 		DisplayServer.window_set_vsync_mode(value)
 		vsync = new_vsync
 ## Enables a 5th judgement not originally present in the game.
-@export var tier1_judges: bool = true
+@export var use_epics: bool = false
 
 
 func _init(use_defaults: bool = false) -> void:
