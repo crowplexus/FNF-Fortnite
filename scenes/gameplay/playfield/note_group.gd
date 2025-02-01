@@ -45,11 +45,11 @@ func move_present_nodes() -> void:
 		# TODO: move to note class
 		var data: NoteData = NoteData.EMPTY
 		if node.data: data = node.data
-		var rel_time: float = Conductor.time - data.time
+		var rel_time: float = Conductor.playhead - data.time
 		const magic_number: float = 100 # REMOVE THIS LATER LOL
 		node.position.y = rel_time * (450.0 * data.speed) / absf(node.scale.y) - magic_number
 		node.position.y *= -1
-		if data.time <= Conductor.time and (not node.note_field or node.note_field.cpu):
+		if data.time <= Conductor.playhead and (not node.note_field or node.note_field.cpu):
 			on_note_deleted.emit(NoteDeletionType.HIT, node)
 			if data.side == 1: node.display_splash()
 			node.hide()

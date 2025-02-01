@@ -17,6 +17,8 @@ signal on_bar_hit(bar: float)
 	set(v):
 		set_process(v)
 		active = v
+## If the playhead variable should copy the time variable.
+@export var playhead_copies_time: bool = true
 ## Man I wonder what this could be.
 var time: float = 0.0
 ## [code]time[/code] but used as a visual position (for notes, for example)
@@ -58,12 +60,13 @@ func set_time(new_time: float) -> void:
 
 func update(delta: float) -> void:
 	time = delta
+	playhead = time
 	var beat_dt: float = (bpm / 60.0) * (time - _prev_time)
 	current_beat += beat_dt
 	current_bar += beat_dt / 4.0
 	if _prev_beat < current_beat:
-		if play_metronome_sound:
-			metronome.play()
+		if floori(_prev_beat) < floori(current_beat) and play_metronome_sound:
+			metronome.play(0.0)
 		on_beat_hit.emit(current_beat)
 		if fmod(current_beat, 4.0):
 			on_bar_hit.emit(current_bar)

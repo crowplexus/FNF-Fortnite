@@ -32,7 +32,7 @@ static var MISS_TIER: int:
 ## Accuracy accumulated from millisecond calculations made when hitting notes.
 @export var accuracy: float = 0.0
 ## Used when displaying highscores.
-var score_system: ScoringSystem = ScoringSystem.HitTime
+var score_system: ScoringSystem = ScoringSystem.Judge
 ## Used for accuracy calculations.
 var notes_hit_count: int = 0
 ## Used for accuracy calculations.
@@ -59,11 +59,11 @@ func increase_combo(amount: int) -> void:
 func update_accuracy(time: float) -> void:
 	match score_system:
 		ScoringSystem.HitTime:
-			accuracy_points += calc_max_points(judge_time(time), time)
-			accuracy = accuracy_points / (notes_hit_count + misses)
-		_:
 			accuracy_points += calc_judgement_points(judge_time(time))
 			accuracy = accuracy_points / notes_hit_count
+		_:
+			accuracy_points += calc_max_points(judge_time(time), time)
+			accuracy = accuracy_points / (notes_hit_count + misses)
 
 ## Calculate the accuracy points for a single hit (in milliseconds).
 static func calc_max_points(tier: int, time: float) -> float:

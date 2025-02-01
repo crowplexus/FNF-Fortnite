@@ -14,23 +14,32 @@ const DEFAULT_DIFFICULTY: String = "normal"
 @onready var bgm: AudioStreamPlayer = $"%background_music"
 @onready var sfx: Node = $"%sound_effects"
 @onready var resources: ResourcePreloader = $"%resource_preloader"
+var music_fade_tween: Tween
 
 var settings: Settings = Settings.new()
 
 func _ready() -> void:
 	reset_discord()
 
-func _unhandled_key_input(event: InputEvent) -> void:
-	if event.pressed and event.keycode == KEY_P:
-		get_tree().paused = not get_tree().paused
+##
+func request_audio_fade(player: AudioStreamPlayer, to: float = 0.0, speed: float = 1.0) -> AudioStreamPlayer:
+	if to < 0.0: return
+	if music_fade_tween: music_fade_tween.stop()
+	var new_vol: float = linear_to_db(to)
+	var cur_vol: float = db_to_linear(player.volume_db)
+	music_fade_tween = create_tween().set_ease(Tween.EASE_IN if new_vol > cur_vol else Tween.EASE_OUT)
+	music_fade_tween.tween_property(player, "volume_db", new_vol, speed)
+	return player
 
-func play_bgm(stream: AudioStream, volume: float = 1.0, loop: bool = true) -> void:
+## Plays background music (remember to stop it if you're switching to a scene that has custom music nodes).
+func play_bgm(stream: AudioStream, volume: float = 1.0, loop: bool = true) -> AudioStreamPlayer:
 	bgm.stop()
+	bgm.stream = stream
 	bgm.volume_db = linear_to_db(volume)
 	#bgm.pitch_scale = pitch
-	bgm.stream = stream
 	bgm.stream.loop = loop
 	bgm.play(0.0)
+	return bgm
 
 ## Plays a sound effect.
 func play_sfx(stream: AudioStream, volume: float = 0.7, pitch: float = 1.0) -> void:
@@ -39,7 +48,7 @@ func play_sfx(stream: AudioStream, volume: float = 0.7, pitch: float = 1.0) -> v
 	asp.stream = stream
 	asp.pitch_scale = pitch
 	asp.volume_db = linear_to_db(volume)
-	asp.finished.connect(asp.free)
+	asp.finished.connect(asp.queue_free)
 	sfx.add_child(asp)
 	asp.play(0.0)
 

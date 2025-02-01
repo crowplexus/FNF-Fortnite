@@ -1,9 +1,9 @@
 [gd_scene load_steps=5 format=3 uid="uid://bsad1fk2b2i3y"]
 
 [ext_resource type="Script" uid="uid://ckd6s4aqndwo3" path="res://scenes/globals/global.gd" id="1_bkvfo"]
-[ext_resource type="AudioStream" uid="uid://c732jy0inr3bb" path="res://assets/ui/sfx/scroll.ogg" id="2_iyfwb"]
-[ext_resource type="AudioStream" uid="uid://bv14nfbyba1r7" path="res://assets/ui/sfx/confirm.ogg" id="3_8rvg3"]
-[ext_resource type="AudioStream" uid="uid://d2l048boehjc3" path="res://assets/ui/sfx/cancel.ogg" id="4_fh08h"]
+[ext_resource type="AudioStream" uid="uid://c732jy0inr3bb" path="res://assets/sounds/scroll.ogg" id="2_iyfwb"]
+[ext_resource type="AudioStream" uid="uid://bv14nfbyba1r7" path="res://assets/sounds/confirm.ogg" id="3_8rvg3"]
+[ext_resource type="AudioStream" uid="uid://d2l048boehjc3" path="res://assets/sounds/cancel.ogg" id="4_fh08h"]
 
 [node name="global" type="Node"]
 process_mode = 3

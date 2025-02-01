@@ -59,3 +59,7 @@ func display_hold(size: float = 0.0, speed: float = 1.0) -> void:
 ## Return null if you don't want note splashes on your note type.
 func display_splash() -> Node2D:
 	return null
+
+## Checks if the note is in range to be hit
+func is_hittable(hit_window: float = 180.0) -> bool:
+	return data and data.time > Conductor.playhead - hit_window and data.time < Conductor.playhead + hit_window

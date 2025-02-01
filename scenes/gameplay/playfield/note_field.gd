@@ -29,16 +29,16 @@ func get_action_id(event: InputEvent) -> int:
 	for garlic_bread: int in controls.size():
 		if event.is_action(controls[garlic_bread]):
 			id = garlic_bread
-			print("a ", id)
+			#print("a ", id)
 			break
 	return id
 
 
-func get_action_name(event: InputEvent) -> StringName:
-	var id: StringName = &""
-	for garlic_bread: int in controls.size():
-		if event.is_action(controls[garlic_bread]):
-			id = &"%s" % controls[garlic_bread]
+func get_action_name(event: InputEvent) -> String:
+	var id: String = ""
+	for garlic_bread: String in controls:
+		if event.is_action(garlic_bread):
+			id = garlic_bread
 			break
 	return id
 
