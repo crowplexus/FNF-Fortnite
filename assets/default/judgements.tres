@@ -37,7 +37,7 @@ script = ExtResource("1_spwge")
 name = &"Bad"
 texture = ExtResource("5_xkcep")
 splash_type = 0
-combo_break = false
+combo_break = true
 metadata/_custom_type_script = ExtResource("1_spwge")
 
 [sub_resource type="Resource" id="Resource_xs71s"]
@@ -45,7 +45,7 @@ script = ExtResource("1_spwge")
 name = &"Shit"
 texture = ExtResource("6_02ne8")
 splash_type = 0
-combo_break = false
+combo_break = true
 metadata/_custom_type_script = ExtResource("1_spwge")
 
 [resource]

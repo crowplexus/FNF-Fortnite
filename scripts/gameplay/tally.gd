@@ -3,12 +3,10 @@ extends Resource
 
 ## Defines the scoring system used for calculations, and how high scores will be displayed.
 enum ScoringSystem {
-	## Accuracy gets calculated internally, never displayed.
-	Default = 0,
 	## Accuracy gets calculated based on the Judgement.
-	Judge = 1,
+	Judge = (1 << 1),
 	## Accuracy gets calculated based on Note Hit Time.
-	HitTime = 2,
+	HitTime = (2 << 1),
 }
 
 ## Accuracy Points you get from missing notes.
@@ -18,7 +16,7 @@ const POINTS_WEIGHT: float = 20.0
 ## Maximum score a note can receive.
 const MAX_SCORE: int = 500
 ## Temporary, will be replaced with settings.
-const TIMINGS: Array[float] = [ 22.5, 45.0, 90.0, 135.0, 180.0 ]
+const TIMINGS: Array[float] = [ 18.9, 37.8, 75.6, 113.4, 180.0 ]
 ## Tier for a miss.
 static var MISS_TIER: int:
 	get: return TIMINGS.size() + 1
@@ -29,6 +27,8 @@ static var MISS_TIER: int:
 @export var misses: int = 0
 ## Combo accumulated from hitting notes consecutively, resets to 0 if you miss.
 @export var combo: int = 0
+## Combo Breaks, obtained whenever the combo counter resets to 0.
+@export var breaks: int = 0
 ## Accuracy accumulated from millisecond calculations made when hitting notes.
 @export var accuracy: float = 0.0
 ## Used when displaying highscores.
@@ -39,7 +39,7 @@ var notes_hit_count: int = 0
 var accuracy_points: float = 0.0
 
 func _to_string() -> String:
-	return "Score: %s # Misses: %s # Rank: {rank} - %s%%" % [ score, misses, snappedf(accuracy, 0.001) ]
+	return "Score: %s # Combo Breaks: %s # Grade: {rank} - %s%%" % [ score, breaks, snappedf(accuracy, 0.001) ]
 
 ## Increases the score by the amount provided.
 func increase_score(amount: float) -> void:
@@ -59,11 +59,11 @@ func increase_combo(amount: int) -> void:
 func update_accuracy(time: float) -> void:
 	match score_system:
 		ScoringSystem.HitTime:
-			accuracy_points += calc_judgement_points(judge_time(time))
-			accuracy = accuracy_points / notes_hit_count
-		_:
 			accuracy_points += calc_max_points(judge_time(time), time)
 			accuracy = accuracy_points / (notes_hit_count + misses)
+		_:
+			accuracy_points += calc_judgement_points(judge_time(time))
+			accuracy = accuracy_points / notes_hit_count
 
 ## Calculate the accuracy points for a single hit (in milliseconds).
 static func calc_max_points(tier: int, time: float) -> float:

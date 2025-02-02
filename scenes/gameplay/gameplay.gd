@@ -2,9 +2,9 @@ class_name Gameplay
 extends Node2D
 
 enum PlayMode {
-	STORY = 0,
-	FREEPLAY = 1,
-	CHARTING = 2,
+	STORY = (1 << 1),
+	FREEPLAY = (2 << 1),
+	CHARTING = (3 << 1),
 }
 
 var player_strums: NoteField
@@ -152,6 +152,7 @@ func on_note_hit(note: NoteObject) -> void:
 	tally.increase_score(abs_diff * 1000.0)
 	if judgement.combo_break:
 		tally.combo = 0
+		tally.breaks += 1
 	tally.increase_combo(1)
 	tally.update_accuracy(abs_diff * 1000.0)
 	hud.display_judgement(judgement.texture)
@@ -161,6 +162,8 @@ func on_note_hit(note: NoteObject) -> void:
 
 func on_note_miss(note: NoteObject) -> void:
 	if note.was_missed: return
+	if tally.combo > 0:
+		tally.breaks += 1
 	tally.combo = 0
 	tally.increase_misses(1)
 	hud.update_score_text()

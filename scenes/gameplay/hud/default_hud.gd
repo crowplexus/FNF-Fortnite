@@ -83,12 +83,15 @@ func display_combo(combo: int = -1) -> void:
 
 func get_rank(accuracy: float) -> String:
 	match accuracy:
-		_ when accuracy >= 100: return "SS"
-		_ when accuracy >= 95: return "S"
-		_ when accuracy >= 90: return "A"
-		_ when accuracy >= 85: return "B"
-		_ when accuracy >= 70: return "C"
-		_ when accuracy >= 65: return "D"
-		_ when accuracy <= 60: return "F"
-		_ when accuracy <= -1: return "NASTY"
+		# based on Turkey grading system.
+		_ when accuracy >= 100: return "AA" # S+
+		_ when accuracy >= 95: return "BA" # S
+		_ when accuracy >= 90: return "BB" # A+
+		_ when accuracy >= 85: return "CB" # A
+		_ when accuracy >= 80: return "CC" # B+
+		_ when accuracy >= 75: return "DC" # B
+		_ when accuracy >= 70: return "DD" # C+
+		_ when accuracy >= 65: return "FD" # C
+		_ when accuracy <= 60: return "FF" # D
+		_ when accuracy <= -1: return "FAIL" # F, kinda, whatever
 	return "N/A"
