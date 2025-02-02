@@ -38,7 +38,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_liwuh")
-skip_countdown = true
 
 [node name="health_bar" type="ProgressBar" parent="."]
 unique_name_in_owner = true

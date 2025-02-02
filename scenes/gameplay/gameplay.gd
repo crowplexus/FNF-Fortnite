@@ -48,10 +48,11 @@ func _ready() -> void:
 	
 	var skip_countdown: bool = false
 	if hud:
+		hud.init_vars()
 		skip_countdown = hud.skip_countdown
 		hud.update_score_text()
 		if not skip_countdown:
-			Conductor.time = (Conductor.crotchet * -3.0)
+			Conductor.time = (Conductor.crotchet * -5.0)
 			hud.start_countdown()
 	if skip_countdown:
 		Conductor.time = (Conductor.crotchet * -3.0)
@@ -66,8 +67,6 @@ func reload_hud() -> void:
 		hud = chart.assets.hud.instantiate()
 		hud_layer.add_child(hud)
 		hud_layer.move_child(hud, 0)
-		hud.init_vars()
-
 
 func load_streams() -> void:
 	if chart.assets.instrumental:
