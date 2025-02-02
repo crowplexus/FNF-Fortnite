@@ -111,6 +111,7 @@ func _process(_delta: float) -> void:
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if Input.is_action_just_pressed("ui_cancel"):
+		tally = null
 		get_tree().change_scene_to_file("res://scenes/menu/freeplay_menu.tscn")
 		return
 	var action: String = player_strums.get_action_name(event)
