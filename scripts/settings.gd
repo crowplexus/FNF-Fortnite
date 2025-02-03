@@ -6,12 +6,11 @@ const IGNORED_PROPERTIES: PackedStringArray = ["resource_local_to_scene", "resou
 ## Defines the Master Volume of the game.
 @export var master_volume: int = 100:
 	set(new_mv):
-		new_mv = clampi(new_mv, 0, 100)
-		AudioServer.set_bus_volume_db(0, linear_to_db(new_mv * 0.001))
-		master_volume = new_mv
+		master_volume = clampi(new_mv, 0, 100)
+		AudioServer.set_bus_volume_db(0, linear_to_db(master_volume * 0.001))
 ## Alternates between in-game scroll directions.
 @export_enum("Up:0","Down:1")
-var scroll: int = 0
+var scroll: int = 1
 ## Locks framerate to your monitor's refresh rate[br]
 ## May help reducing screen tearing.
 @export var vsync: bool = false:
@@ -24,7 +23,7 @@ var scroll: int = 0
 
 
 func _init(use_defaults: bool = false) -> void:
-	master_volume = 50
+	AudioServer.set_bus_volume_db(0, linear_to_db(master_volume * 0.001))
 	if not use_defaults: # not a "defaults-only" instance
 		reload_custom_settings()
 

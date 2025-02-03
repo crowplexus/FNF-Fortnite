@@ -5,11 +5,19 @@
 ## clip_rect (Any Control Type)[br]
 ##		hold_body (TextureRect)[br]
 ##		hold_tail (Any Type)[br]
-class_name NoteObject
+class_name Note
 extends Node2D
 
 ## Default Directions.
 const COLORS: PackedStringArray = ["purple","blue","green","red"]
+
+## Default Note Distance (in pixels)
+const DISTANCE: float = 450.0
+
+static func get_scroll_as_vector(scroll: int) -> Vector2:
+	match scroll:
+		1: return Vector2.ONE # Down
+		_: return Vector2.UP # Up (default)
 
 ## If note splashes should be forced to appear regardless of the judgement.
 @export var forced_splash: bool = false
@@ -30,14 +38,17 @@ var clip_rect: Control
 # Input stuff
 var was_hit: bool = false
 var was_missed: bool = false
+var scroll_mult: Vector2 = Vector2.UP
 
 func _ready() -> void:
+	scroll_mult = Note.get_scroll_as_vector(Global.settings.scroll)
 	if data:
 		hold_size = data.length
 	if has_node("clip_rect"):
 		clip_rect = get_node("clip_rect")
 		if has_node("clip_rect/hold_body"): hold_body = get_node("clip_rect/hold_body")
 		if has_node("clip_rect/hold_tail"): hold_tail = get_node("clip_rect/hold_tail")
+		clip_rect.scale.y *= -scroll_mult.y
 
 ## Use this function to initialise the note itself and related properties[br]
 ## Called whenever a note is spawned.
@@ -47,13 +58,13 @@ func reload(_data: NoteData) -> void:
 ## Use this function for implementing hold note visuals.[br]
 ## Leave empty if you want your note type to not have holds.
 func display_hold(size: float = 0.0, speed: float = 1.0) -> void:
-	if not data or not clip_rect or size <= 0.0:
+	# general implementation, should work for everything???
+	if not data or not hold_body or not clip_rect or size <= 0.0:
 		return
-	if hold_body and hold_body.texture: # general implementation, should work for everything???
-		hold_body.size = Vector2(hold_body.texture.get_width(),
-			size * (450.0 * speed) / absf(hold_body.scale.y)
-			#- (0.0 if not hold_tail else hold_tail.texture.get_height())
-		)
+	hold_body.size = Vector2(hold_body.texture.get_width(),
+		size * (Note.DISTANCE * speed) / absf(hold_body.scale.y)
+		#- (0.0 if not hold_tail else hold_tail.texture.get_height())
+	)
 
 ## Use this function for implementing splash visuals.[br]
 ## Return null if you don't want note splashes on your note type.

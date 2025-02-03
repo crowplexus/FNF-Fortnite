@@ -68,6 +68,7 @@ func reload_hud() -> void:
 		hud_layer.add_child(hud)
 		hud_layer.move_child(hud, 0)
 
+
 func load_streams() -> void:
 	if chart.assets.instrumental:
 		music.stream.set_sync_stream(0, chart.assets.instrumental)
@@ -84,7 +85,7 @@ func init_note_spawner() -> void:
 		note.scale = note_fields[data.side].scale
 		note.note_field = note_fields[data.side]
 	)
-	note_group.connect("on_note_deleted", func(type: int, note: NoteObject) -> void:
+	note_group.connect("on_note_deleted", func(type: int, note: Note) -> void:
 		var the_guy: NoteField = note_fields[note.data.side]
 		if type == 0 and the_guy == player_strums:
 			on_note_miss(note)
@@ -130,9 +131,9 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		if inputs.size() == 0:
 			player_strums.play_animation(idx, NoteField.RepState.PRESSED)
 		else:
-			if inputs.size() > 1: inputs.sort_custom(func(n1: NoteObject, n2: NoteObject) -> bool:
+			if inputs.size() > 1: inputs.sort_custom(func(n1: Note, n2: Note) -> bool:
 				return n1.data.time < n2.data.time)
-			var hit_note: NoteObject = inputs[0]
+			var hit_note: Note = inputs[0]
 			if not hit_note:
 				player_strums.play_animation(idx, NoteField.RepState.PRESSED)
 			else:
@@ -141,7 +142,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 					on_note_hit(hit_note)
 
 
-func on_note_hit(note: NoteObject) -> void:
+func on_note_hit(note: Note) -> void:
 	if note.was_hit: return
 	note.was_hit = true
 	var abs_diff: float = absf(note.data.time - Conductor.playhead)
@@ -160,7 +161,7 @@ func on_note_hit(note: NoteObject) -> void:
 	hud.update_score_text()
 
 
-func on_note_miss(note: NoteObject) -> void:
+func on_note_miss(note: Note) -> void:
 	if note.was_missed: return
 	if tally.combo > 0:
 		tally.breaks += 1

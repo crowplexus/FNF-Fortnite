@@ -7,8 +7,8 @@ enum NoteDeletionType {
 
 const TEMPLATE_NOTE: PackedScene = preload("res://scenes/gameplay/playfield/notes/normal_note.tscn")
 
-signal on_note_spawned(data: NoteData, note: NoteObject)
-signal on_note_deleted(type: NoteDeletionType, note: NoteObject)
+signal on_note_spawned(data: NoteData, note: Note)
+signal on_note_deleted(type: NoteDeletionType, note: Note)
 
 @export var active: bool = true
 var colours: Array[StringName] = [ &"purple", &"blue", &"green", &"red", ]
@@ -21,6 +21,7 @@ func _ready() -> void:
 	for i: int in 20: # precache this many notes
 		var preload_note: = TEMPLATE_NOTE.instantiate()
 		preload_note.name = "preload%s" % str(i)
+		preload_note.top_level = true
 		preload_note.hide()
 		add_child(preload_note)
 
@@ -39,21 +40,23 @@ func spawning_complete() -> bool:
 
 func move_present_nodes() -> void:
 	for i: int in get_child_count():
-		var node: NoteObject = get_child(i)
+		var node: Note = get_child(i)
 		if not node.visible:
 			continue
 		# TODO: move to note class
-		var data: NoteData = NoteData.EMPTY
-		if node.data: data = node.data
+		var data: NoteData = NoteData.EMPTY if not node.data else node.data
 		var rel_time: float = Conductor.playhead - data.time
-		const magic_number: float = 100 # REMOVE THIS LATER LOL
-		node.position.y = rel_time * (450.0 * data.speed) / absf(node.scale.y) - magic_number
-		node.position.y *= -1
+		
+		node.position.y = Note.DISTANCE * rel_time * data.speed / absf(node.scale.y)
+		node.position.y += node.note_field.global_position.y
+		node.position *= node.scroll_mult
+		
 		if data.time <= Conductor.playhead and (not node.note_field or node.note_field.cpu):
 			on_note_deleted.emit(NoteDeletionType.HIT, node)
 			if data.side == 1: node.display_splash()
 			node.hide()
-		if rel_time > 0.8:
+		
+		if rel_time > 0.75:
 			on_note_deleted.emit(NoteDeletionType.DIE, node)
 			node.hide()
 
@@ -63,7 +66,7 @@ func try_spawning() -> void:
 		var note_data: NoteData = note_list[list_position]
 		if absf(note_data.time - Conductor.time) > 0.8: break
 
-		var new_note: NoteObject = get_note()
+		var new_note: Note = get_note()
 		new_note.data = note_data
 		new_note.was_missed = false
 		new_note.was_hit = false

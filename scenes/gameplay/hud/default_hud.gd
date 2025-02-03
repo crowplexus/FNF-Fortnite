@@ -2,11 +2,14 @@ extends TemplateHUD
 
 @onready var score_text: Label = $"health_bar/score_text"
 @onready var combo_group: Control = $"combo_group"
+@onready var note_fields: Control = $"note_fields"
+@onready var health_bar: ProgressBar = $"health_bar"
 
 @onready var countdown: Control = $"countdown"
 @onready var countdown_sprite: Sprite2D = $"countdown/sprite"
 @onready var countdown_sound: AudioStreamPlayer = $"countdown/sound"
 @onready var countdown_timer: Timer = $"countdown/timer"
+
 var countdown_tween: Tween
 
 var countdown_textures: Array[Texture2D] = []
@@ -17,7 +20,17 @@ var game: Node2D
 
 func _ready() -> void:
 	game = get_tree().current_scene
+	_on_settings_changed()
 	countdown.hide()
+
+func _on_settings_changed() -> void:
+	match Global.settings.scroll:
+		0:
+			note_fields.position.y = 0
+			health_bar.position.y = 685
+		1:
+			note_fields.position.y = 500
+			health_bar.position.y = 50
 
 func init_vars() -> void:
 	countdown_textures = game.assets.countdown_textures

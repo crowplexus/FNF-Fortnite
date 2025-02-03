@@ -45,14 +45,15 @@ func display_judgement(texture: Texture2D) -> void:
 	var judgement: Sprite2D = get_child(0)
 	judgement.position = Vector2.ZERO
 	judgement.self_modulate.a = 1.0
-	judgement.scale = judge_scale
+	judgement.scale = judge_scale * randf_range(0.9, 1.1)
 	judgement.texture = texture
 	judgement.position.y = -50
-	judgement.visible = true
 	judgement.set_meta(ACCELERATION, Vector2(0, 500))
 	judgement.set_meta(VELOCITY, Vector2(randi_range(0, 10), randi_range(140, 175)))
+	judgement.visible = true
 	if judgement_tween: judgement_tween.stop()
 	judgement_tween = create_tween().set_parallel(true)
+	judgement_tween.tween_property(judgement, "scale", judge_scale, 0.2)
 	judgement_tween.tween_property(judgement, "self_modulate:a", 0.0, 0.4).set_delay(Conductor.crotchet * 0.05)
 	judgement_tween.finished.connect(judgement.hide)
 
