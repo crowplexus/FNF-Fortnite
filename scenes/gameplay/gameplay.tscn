@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3 uid="uid://cvf84mr6iepcs"]
+[gd_scene load_steps=8 format=3 uid="uid://cvf84mr6iepcs"]
 
 [ext_resource type="Script" uid="uid://btgjnxmxnkh14" path="res://scenes/gameplay/gameplay.gd" id="1_7biu0"]
 [ext_resource type="PackedScene" uid="uid://br6ornbfmuj7l" path="res://scenes/gameplay/hud/default_hud.tscn" id="2_x0t60"]
 [ext_resource type="Script" uid="uid://c3dm5njdcq7if" path="res://scenes/gameplay/playfield/note_group.gd" id="4_q64rj"]
+[ext_resource type="PackedScene" uid="uid://c10wmwqhwc2gj" path="res://scenes/gameplay/stages/stage_week1.tscn" id="5_0w2j2"]
 [ext_resource type="AudioStream" uid="uid://fo6ulwenanwk" path="res://assets/sounds/hitsound.ogg" id="5_q64rj"]
+[ext_resource type="PackedScene" uid="uid://4po3ojxk5tt3" path="res://scenes/gameplay/characters/bf.tscn" id="6_0w2j2"]
 
 [sub_resource type="AudioStreamSynchronized" id="AudioStreamSynchronized_7biu0"]
 stream_count = 3
@@ -31,3 +33,8 @@ stream = ExtResource("5_q64rj")
 volume_db = -6.021
 max_polyphony = 16
 bus = &"Sound Effects"
+
+[node name="stage_week_1" parent="." instance=ExtResource("5_0w2j2")]
+
+[node name="bf" parent="." instance=ExtResource("6_0w2j2")]
+position = Vector2(908, 461)

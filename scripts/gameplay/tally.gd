@@ -55,6 +55,12 @@ func increase_combo(amount: int) -> void:
 	# never decrease this idk
 	notes_hit_count += 1
 
+## Increases the combo breaks counter (if possible).
+func break_combo() -> void:
+	if combo > 0:
+		breaks += 1
+	combo = 0
+
 ## Updates the accuracy currently displayed.
 func update_accuracy(time: float) -> void:
 	match score_system:
@@ -90,4 +96,4 @@ static func judge_time(ms: float) -> int:
 		if not Global.settings.use_epics and i == 0:
 			can_return = false
 		if can_return: return i
-	return MISS_TIER
+	return TIMINGS.find(TIMINGS.back())

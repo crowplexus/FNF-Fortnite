@@ -21,6 +21,12 @@ var settings: Settings = Settings.new()
 func _ready() -> void:
 	reset_discord()
 
+## [see]lerpf]
+func lerpv2(v1: Vector2, v2: Vector2, weight: float = 1.0) -> Vector2:
+	return Vector2(
+		lerpf(v1.x, v2.x, weight),
+		lerpf(v1.y, v2.y, weight)
+	)
 ##
 func request_audio_fade(player: AudioStreamPlayer, to: float = 0.0, speed: float = 1.0) -> AudioStreamPlayer:
 	if to < 0.0: return

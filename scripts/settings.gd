@@ -20,6 +20,14 @@ var scroll: int = 1
 		vsync = new_vsync
 ## Enables a 5th judgement not originally present in the game.
 @export var use_epics: bool = true
+## Defines the intensity of the Camera Bump.
+@export var bump_intensity: int = 100:
+	set(new_bi):
+		bump_intensity = clampi(new_bi, 0, 100)
+## Defines the intensity of the HUD Bump.
+@export var hud_bump_intensity: int = 100:
+	set(new_bi):
+		hud_bump_intensity = clampi(new_bi, 0, 100)
 
 
 func _init(use_defaults: bool = false) -> void:

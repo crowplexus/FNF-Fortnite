@@ -36,9 +36,11 @@ var rate: float = 1.0:
 var crotchet: float = 0.0
 
 ## Current song beat.
-var current_beat: float = 0.0
+var current_beat: float = 0.0:
+	get: return snappedf(current_beat, 0.01)
 ## Current song bar.
-var current_bar: float = 0.0
+var current_bar: float = 0.0:
+	get: return snappedf(current_bar, 0.01)
 
 var _prev_beat: float = 0.0
 var _prev_time: float = 0.0
@@ -64,11 +66,13 @@ func update(delta: float) -> void:
 	var beat_dt: float = (bpm / 60.0) * (time - _prev_time)
 	current_beat += beat_dt
 	current_bar += beat_dt / 4.0
-	if _prev_beat < current_beat:
-		if floori(_prev_beat) < floori(current_beat) and play_metronome_sound:
+	# TODO: fix on_beat_hit float
+	#if _prev_beat < current_beat:
+	if floori(_prev_beat) < floori(current_beat):
+		if play_metronome_sound:
 			metronome.play(0.0)
 		on_beat_hit.emit(current_beat)
-		if fmod(current_beat, 4.0):
+		if floori(current_beat) % 6 == 0:
 			on_bar_hit.emit(current_bar)
 		_prev_beat = current_beat
 	_prev_time = time

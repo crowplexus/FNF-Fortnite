@@ -43,7 +43,7 @@ func move_present_nodes() -> void:
 		var node: Note = get_child(i)
 		if not node.visible:
 			continue
-		# TODO: move to note class
+		# TODO: move to note class?
 		var data: NoteData = NoteData.EMPTY if not node.data else node.data
 		var rel_time: float = Conductor.playhead - data.time
 		
@@ -83,7 +83,7 @@ func get_note() -> Node:
 		if not node.visible:
 			return node
 	var duped: = TEMPLATE_NOTE.instantiate()
-	duped.name = "note%s" % [ list_position ]
+	duped.name = "note%s" % list_position
 	duped.hide()
 	add_child(duped)
 	return duped

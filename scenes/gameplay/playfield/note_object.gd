@@ -38,6 +38,8 @@ var clip_rect: Control
 # Input stuff
 var was_hit: bool = false
 var was_missed: bool = false
+var late_hitbox: float = 1.0
+var early_hitbox: float = 1.0
 var scroll_mult: Vector2 = Vector2.UP
 
 func _ready() -> void:
@@ -72,5 +74,6 @@ func display_splash() -> Node2D:
 	return null
 
 ## Checks if the note is in range to be hit
-func is_hittable(hit_window: float = 180.0) -> bool:
-	return data and data.time > Conductor.playhead - hit_window and data.time < Conductor.playhead + hit_window
+func is_hittable(hit_window: float = 0.18) -> bool:
+	return data.time > Conductor.playhead - (hit_window * late_hitbox) \
+		and data.time < Conductor.playhead + (hit_window * early_hitbox)

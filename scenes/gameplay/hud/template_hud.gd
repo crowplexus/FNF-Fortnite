@@ -11,6 +11,18 @@ signal on_countdown_end()
 ## Use this if you want to skip the default hud countdown.
 @export var skip_countdown: bool = false
 
+## Returns the lerp value used for decreasing the hud scale for beat zooms.
+func get_bump_lerp(_from: float = 2.0, to: float = 1.0, _delta: float = 0) -> float:
+	return to
+
+## Returns the lerp value used for decreasing the hud scale as a vector.
+func get_bump_lerp_vector(_from: Vector2 = Vector2.ONE, to: Vector2 = Vector2.ONE, _delta: float = 0) -> Vector2:
+	return to
+
+## Returns the value used for increasing the hud scale for beat zooms.
+func get_bump_scale() -> float:
+	return 1.0
+
 ## Use this to initialize the HUD's default values (if needed).
 func init_vars() -> void:
 	pass
