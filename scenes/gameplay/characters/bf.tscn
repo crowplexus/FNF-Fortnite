@@ -11,47 +11,6 @@ icon = ExtResource("2_tvlln")
 color = Color(0.192157, 0.690196, 0.819608, 1)
 metadata/_custom_type_script = ExtResource("3_kgqrn")
 
-[sub_resource type="Animation" id="Animation_kgqrn"]
-resource_name = "idle"
-length = 0.541671
-step = 0.0416667
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("animated_sprite_2d:animation")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [&"BF idle dance"]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("animated_sprite_2d:frame")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.541667),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [0, 13]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("animated_sprite_2d:offset")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(0, 0)]
-}
-
 [sub_resource type="Animation" id="Animation_g2rcx"]
 resource_name = "RESET"
 length = 0.541671
@@ -93,9 +52,9 @@ tracks/2/keys = {
 "values": [Vector2(0, 0)]
 }
 
-[sub_resource type="Animation" id="Animation_5d8l5"]
-resource_name = "singLEFT"
-length = 0.583338
+[sub_resource type="Animation" id="Animation_kgqrn"]
+resource_name = "idle"
+length = 0.541671
 step = 0.0416667
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -107,7 +66,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"BF NOTE LEFT"]
+"values": [&"BF idle dance"]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -116,10 +75,10 @@ tracks/1/path = NodePath("animated_sprite_2d:frame")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.583333),
+"times": PackedFloat32Array(0, 0.541667),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [0, 14]
+"values": [0, 13]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -131,7 +90,7 @@ tracks/2/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(-20, 3)]
+"values": [Vector2(0, 0)]
 }
 
 [sub_resource type="Animation" id="Animation_7smad"]
@@ -175,9 +134,9 @@ tracks/2/keys = {
 "values": [Vector2(0, 20)]
 }
 
-[sub_resource type="Animation" id="Animation_skpw8"]
-resource_name = "singUP"
-length = 0.541671
+[sub_resource type="Animation" id="Animation_5d8l5"]
+resource_name = "singLEFT"
+length = 0.583338
 step = 0.0416667
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -189,7 +148,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"BF NOTE UP"]
+"values": [&"BF NOTE LEFT"]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -198,10 +157,10 @@ tracks/1/path = NodePath("animated_sprite_2d:frame")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.541667),
+"times": PackedFloat32Array(0, 0.583333),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [0, 13]
+"values": [0, 14]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -213,7 +172,7 @@ tracks/2/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(20, -8)]
+"values": [Vector2(-20, 3)]
 }
 
 [sub_resource type="Animation" id="Animation_yab3x"]
@@ -255,6 +214,47 @@ tracks/2/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Vector2(40, 3)]
+}
+
+[sub_resource type="Animation" id="Animation_skpw8"]
+resource_name = "singUP"
+length = 0.541671
+step = 0.0416667
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("animated_sprite_2d:animation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [&"BF NOTE UP"]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("animated_sprite_2d:frame")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.541667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0, 13]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("animated_sprite_2d:offset")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(20, -8)]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_7smad"]

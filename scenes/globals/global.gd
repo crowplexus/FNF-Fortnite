@@ -21,7 +21,12 @@ var settings: Settings = Settings.new()
 func _ready() -> void:
 	reset_discord()
 
-## [see]lerpf]
+func _unhandled_key_input(event: InputEvent) -> void:
+	if event.keycode == KEY_F11 and event.pressed:
+		var is_full: bool = get_window().mode == Window.Mode.MODE_FULLSCREEN
+		get_window().mode = Window.MODE_WINDOWED if is_full else Window.MODE_FULLSCREEN
+
+## [see]lerpf[/see]
 func lerpv2(v1: Vector2, v2: Vector2, weight: float = 1.0) -> Vector2:
 	return Vector2(
 		lerpf(v1.x, v2.x, weight),
