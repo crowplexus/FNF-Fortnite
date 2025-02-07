@@ -47,8 +47,7 @@ func move_present_nodes() -> void:
 		var data: NoteData = NoteData.EMPTY if not node.data else node.data
 		var rel_time: float = Conductor.playhead - data.time
 		
-		node.position.y = Note.DISTANCE * rel_time * data.speed
-		node.position.y /= absf(node.scale.y)
+		node.position.y = Note.DISTANCE * rel_time * data.speed / absf(node.scale.y)
 		node.position.y *= node.scroll_mult.y
 		node.position.y += node.note_field.global_position.y
 		
