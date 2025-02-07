@@ -185,5 +185,6 @@ libraries = {
 [node name="splash" type="AnimatedSprite2D" parent="."]
 visible = false
 modulate = Color(1, 1, 1, 0.6)
+top_level = true
 sprite_frames = ExtResource("3_8d3la")
-animation = &"note impact 1 blue"
+animation = &"note impact 1 purple"

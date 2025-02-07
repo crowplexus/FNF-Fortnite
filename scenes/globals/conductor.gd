@@ -77,7 +77,6 @@ func update(delta: float) -> void:
 		_prev_beat = current_beat
 	_prev_time = time
 
-
 ## Converts Beats per minute to seconds.
 func get_bps() -> float:
 	return 60.0 / bpm
@@ -93,7 +92,6 @@ func _ready() -> void:
 	set_physics_process_internal(false)
 	set_process_internal(false)
 	set_physics_process(false)
-
 
 func _process(_delta: float) -> void:
 	if active: update(time + _delta)

@@ -10,7 +10,7 @@ const IGNORED_PROPERTIES: PackedStringArray = ["resource_local_to_scene", "resou
 		AudioServer.set_bus_volume_db(0, linear_to_db(master_volume * 0.001))
 ## Alternates between in-game scroll directions.
 @export_enum("Up:0","Down:1")
-var scroll: int = 1
+var scroll: int = 0
 ## Locks framerate to your monitor's refresh rate[br]
 ## May help reducing screen tearing.
 @export var vsync: bool = false:

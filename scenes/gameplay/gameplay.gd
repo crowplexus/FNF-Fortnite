@@ -144,7 +144,8 @@ func init_note_spawner() -> void:
 			note.note_field.play_animation(note.data.column, NoteField.RepState.CONFIRM)
 			note.note_field.set_reset_timer(note.data.column, 0.3 * Conductor.crotchet)
 	)
-	note_group.note_list = chart.notes.duplicate(true)
+	if chart and not chart.notes.is_empty():
+		note_group.note_list = chart.notes.duplicate(true)
 
 
 @onready var fucker_temp: Actor2D = $"bf"

@@ -17,7 +17,7 @@ const DISTANCE: float = 450.0
 static func get_scroll_as_vector(scroll: int) -> Vector2:
 	match scroll:
 		1: return Vector2.ONE # Down
-		_: return Vector2.UP # Up (default)
+		_: return -Vector2.ONE # Up (default)
 
 ## If note splashes should be forced to appear regardless of the judgement.
 @export var forced_splash: bool = false
@@ -40,7 +40,7 @@ var was_hit: bool = false
 var was_missed: bool = false
 var late_hitbox: float = 1.0
 var early_hitbox: float = 1.0
-var scroll_mult: Vector2 = Vector2.UP
+var scroll_mult: Vector2 = -Vector2.ONE
 
 func _ready() -> void:
 	scroll_mult = Note.get_scroll_as_vector(Global.settings.scroll)
@@ -50,7 +50,7 @@ func _ready() -> void:
 		clip_rect = get_node("clip_rect")
 		if has_node("clip_rect/hold_body"): hold_body = get_node("clip_rect/hold_body")
 		if has_node("clip_rect/hold_tail"): hold_tail = get_node("clip_rect/hold_tail")
-		clip_rect.scale.y *= -scroll_mult.y
+		clip_rect.scale *= -scroll_mult
 
 ## Use this function to initialise the note itself and related properties[br]
 ## Called whenever a note is spawned.
