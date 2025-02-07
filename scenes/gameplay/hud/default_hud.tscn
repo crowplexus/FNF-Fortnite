@@ -84,7 +84,6 @@ offset_right = 0.817993
 offset_bottom = -24.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_fonts/font = ExtResource("1_r1kje")
 text = "Score: 0 # Combo Breaks: 0 # Grade: N/A - 0.00%"
 label_settings = SubResource("LabelSettings_it28e")
 horizontal_alignment = 1
