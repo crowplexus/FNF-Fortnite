@@ -161,14 +161,14 @@ modulate = Color(1, 1, 1, 0.8)
 clip_contents = true
 layout_mode = 3
 anchors_preset = 0
-offset_left = -26.0
-offset_right = 59.0
+offset_left = -32.0
+offset_right = 53.0
 offset_bottom = 864.0
 
 [node name="hold_body" type="TextureRect" parent="clip_rect"]
 layout_mode = 0
 offset_right = 100.0
-offset_bottom = 720.0
+offset_bottom = 810.0
 
 [node name="hold_tail" type="Sprite2D" parent="clip_rect"]
 position = Vector2(26, 0)

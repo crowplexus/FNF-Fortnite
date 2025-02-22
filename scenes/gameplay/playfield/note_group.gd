@@ -1,14 +1,9 @@
 extends Node
 
-enum NoteDeletionType {
-	DIE = 0,
-	HIT = 1,
-}
-
 const TEMPLATE_NOTE: PackedScene = preload("res://scenes/gameplay/playfield/notes/normal_note.tscn")
 
 signal on_note_spawned(data: NoteData, note: Note)
-signal on_note_deleted(type: NoteDeletionType, note: Note)
+signal on_note_deleted(type: Note.DeletionEventID, note: Note)
 
 @export var active: bool = true
 var colours: Array[StringName] = [ &"purple", &"blue", &"green", &"red", ]
@@ -18,16 +13,16 @@ var list_position: int = 0
 
 func _ready() -> void:
 	list_position = 0
-	for i: int in 20: # precache this many notes
-		var preload_note: = TEMPLATE_NOTE.instantiate()
-		preload_note.name = "preload%s" % str(i)
-		preload_note.top_level = true
-		preload_note.hide()
-		add_child(preload_note)
+	#for i: int in 64: # precache this many notes
+	#	var preload_note: = TEMPLATE_NOTE.instantiate()
+	#	preload_note.name = "preload%s" % str(i)
+	#	preload_note.top_level = true
+	#	preload_note.hide_all()
+	#	add_child(preload_note)
 
 
 func _process(_delta: float) -> void:
-	if not active or spawning_complete():
+	if not active:
 		return
 	
 	try_spawning()
@@ -41,24 +36,19 @@ func spawning_complete() -> bool:
 func move_present_nodes() -> void:
 	for i: int in get_child_count():
 		var node: Note = get_child(i)
-		if not node.visible:
+		if not node.visible :
 			continue
 		# TODO: move to note class?
-		var data: NoteData = NoteData.EMPTY if not node.data else node.data
-		var rel_time: float = Conductor.playhead - data.time
-		
-		node.position.y = Note.DISTANCE * rel_time * data.speed / absf(node.scale.y)
-		node.position.y *= node.scroll_mult.y
-		node.position.y += node.note_field.global_position.y
-		
-		if data.time <= Conductor.playhead and (not node.note_field or node.note_field.cpu):
-			on_note_deleted.emit(NoteDeletionType.HIT, node)
-			if data.side == 1: node.display_splash()
-			node.hide()
-		
-		if rel_time > 0.75:
-			on_note_deleted.emit(NoteDeletionType.DIE, node)
-			node.hide()
+		var data: NoteData = NoteData.EMPTY if not node.data else node.data		
+		if node.moving:
+			node.position.y = Note.DISTANCE * (Conductor.playhead - data.time) * data.speed / absf(node.scale.y)
+			node.position.y *= node.scroll_mult.y
+			node.position.y += node.note_field.global_position.y
+		# must be done no matter what to prevent orphan notes
+		if (Conductor.playhead - data.time) > 0.75:
+			if not node.was_hit: node.was_missed = true
+			on_note_deleted.emit(Note.DeletionEventID.DIE, node)
+			node.hide_all()
 
 
 func try_spawning() -> void:
@@ -68,22 +58,20 @@ func try_spawning() -> void:
 
 		var new_note: Note = get_note()
 		new_note.data = note_data
-		new_note.was_missed = false
-		new_note.was_hit = false
 		new_note.reload(note_data)
 		on_note_spawned.emit(note_data, new_note)
-		new_note.show()
+		new_note.show_all()
 		list_position += 1#= clampi(list_position + 1, 0, note_list.size())
 		#print_debug("spawned at ", Conductor.time)
 		#print(list_position)
 
 
 func get_note() -> Node:
-	for node: Node in get_children():
-		if not node.visible:
-			return node
+	#for node: Node in get_children():
+	#	if not node.visible:
+	#		return node
 	var duped: = TEMPLATE_NOTE.instantiate()
 	duped.name = "note%s" % list_position
-	duped.hide()
+	#duped.hide_all()
 	add_child(duped)
 	return duped

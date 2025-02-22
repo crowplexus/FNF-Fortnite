@@ -1,7 +1,7 @@
 [gd_scene load_steps=8 format=3 uid="uid://cvf84mr6iepcs"]
 
 [ext_resource type="Script" uid="uid://btgjnxmxnkh14" path="res://scenes/gameplay/gameplay.gd" id="1_7biu0"]
-[ext_resource type="PackedScene" uid="uid://br6ornbfmuj7l" path="res://scenes/gameplay/hud/default_hud.tscn" id="2_x0t60"]
+[ext_resource type="PackedScene" uid="uid://br6ornbfmuj7l" path="res://scenes/gameplay/hud/funkin_hud.tscn" id="2_x0t60"]
 [ext_resource type="Script" uid="uid://c3dm5njdcq7if" path="res://scenes/gameplay/playfield/note_group.gd" id="4_q64rj"]
 [ext_resource type="PackedScene" uid="uid://c10wmwqhwc2gj" path="res://scenes/gameplay/stages/stage_week1.tscn" id="5_0w2j2"]
 [ext_resource type="AudioStream" uid="uid://fo6ulwenanwk" path="res://assets/sounds/hitsound.ogg" id="5_q64rj"]

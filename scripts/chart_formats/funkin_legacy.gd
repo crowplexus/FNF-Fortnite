@@ -28,6 +28,8 @@ static func parse_from_string(json: Dictionary) -> FNFChart:
 	var chart: FNFChart = FNFChart.new()
 	var legacy_mode: bool = json.song is Dictionary
 	var chart_dict: Dictionary = json.song if legacy_mode else json
+	# i hate my lifeeee FUCK OFF SHADOWMARIO
+	var is_psych: bool = legacy_mode and "format" in chart_dict and chart_dict.format == "psych_v1_convert"
 	
 	if "speed" in chart_dict: chart.velocity_changes[0].values.speed = chart_dict.speed
 	if "bpm" in chart_dict: chart.bpm_changes[0].values.bpm = chart_dict.bpm
@@ -47,13 +49,13 @@ static func parse_from_string(json: Dictionary) -> FNFChart:
 		
 		for song_note: Array in measure["sectionNotes"]:
 			var column: int = int(song_note[1])
-			if (column % max_columns) <= -1:
+			if column <= -1:
 				# psych events, do something here later
 				continue
 			var swag_note: NoteData = NoteData.from_array(song_note)
 			if legacy_mode:
 				swag_note.side = int(must_hit_section)
-				if column % (max_columns * 2) >= max_columns:
+				if column % (max_columns if is_psych else max_columns * 2) >= max_columns:
 					swag_note.side = int(not must_hit_section)
 			swag_note.speed = current_speed
 			chart.notes.append(swag_note)
@@ -71,7 +73,7 @@ static func parse_from_string(json: Dictionary) -> FNFChart:
 		if i == 0: continue
 		var cur: NoteData = chart.notes[i]
 		var prev: NoteData = chart.notes[i - 1]
-		if cur.time == prev.time and cur.column == prev.column:
+		if is_equal_approx(cur.time, prev.time) and cur.column == prev.column:
 			chart.notes.remove_at(i)
 			ghosts += 1
 		ii += 1

@@ -1,5 +1,5 @@
 shader_type canvas_item;
-uniform vec4 regular_color: source_color = vec4(1.0, 1.0, 1.0, 0.5); 
+uniform vec4 regular_color: source_color = vec4(1.0, 1.0, 1.0, 0.5);
 uniform vec4 quarter_color: source_color = vec4(1.0, 1.0, 1.0, 0.8);
 uniform float regular_thickness = 0.002;
 uniform float quarter_thickness = 0.003;

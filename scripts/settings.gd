@@ -4,10 +4,10 @@ extends Resource
 const IGNORED_PROPERTIES: PackedStringArray = ["resource_local_to_scene", "resource_scene_unique_id", "resource_name", "resource_path", "script"]
 
 ## Defines the Master Volume of the game.
-@export var master_volume: int = 100:
+@export var master_volume: int = 50:
 	set(new_mv):
 		master_volume = clampi(new_mv, 0, 100)
-		AudioServer.set_bus_volume_db(0, linear_to_db(master_volume * 0.001))
+		AudioServer.set_bus_volume_db(0, linear_to_db(master_volume * 0.01))
 ## Alternates between in-game scroll directions.
 @export_enum("Up:0","Down:1")
 var scroll: int = 0
@@ -31,16 +31,17 @@ var scroll: int = 0
 
 
 func _init(use_defaults: bool = false) -> void:
-	AudioServer.set_bus_volume_db(0, linear_to_db(master_volume * 0.001))
+	AudioServer.set_bus_volume_db(0, linear_to_db(master_volume * 0.01))
 	if not use_defaults: # not a "defaults-only" instance
 		reload_custom_settings()
+
 
 func reload_custom_settings() -> void:
 	if not ResourceLoader.exists("user://settings.tres"):
 		return
 	var custom_settings: Settings = load("user://settings.tres")
 	for key: String in get_settings().keys():
-		if custom_settings.get(key):
+		if get(key) != custom_settings.get(key):
 			set(key, custom_settings.get(key))
 	custom_settings.unreference()
 	custom_settings.free()
@@ -52,3 +53,7 @@ func get_settings() -> Dictionary:
 		if not IGNORED_PROPERTIES.has(prop.name) and get(prop.name) != null:
 			props[prop.name] = get(prop.name)
 	return props
+
+
+func save_settings() -> void:
+	ResourceSaver.save(self, "user://settings.tres")

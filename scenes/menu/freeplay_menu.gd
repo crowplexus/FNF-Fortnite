@@ -14,7 +14,7 @@ var selected: int = 0
 var exiting: bool = false
 
 func _ready() -> void:
-	Global.play_bgm(default_song)
+	Global.play_bgm(default_song, 0.7)
 	Conductor.bpm = default_song.bpm
 	#Global.request_audio_fade(Global.bgm, 1.0, 0.3)
 	for song: SongItem in songs.list:
@@ -40,7 +40,7 @@ func _unhandled_input(_event: InputEvent) -> void:
 		var song_to_pick: = songs.list[selected - 1]
 		if selected == 0: song_to_pick = songs.pick_random()
 		Gameplay.chart = FNFChart.parse(song_to_pick.folder, "hard")
-		await get_tree().create_timer(0.5).timeout
+		await get_tree().create_timer(1.0).timeout
 		get_tree().change_scene_to_file("res://scenes/gameplay/gameplay.tscn")
 
 ## Changes the index of the selection cursor

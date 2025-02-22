@@ -38,9 +38,6 @@ var notes_hit_count: int = 0
 ## Used for accuracy calculations.
 var accuracy_points: float = 0.0
 
-func _to_string() -> String:
-	return "Score: %s # Combo Breaks: %s # Grade: {rank} - %s%%" % [ score, breaks, snappedf(accuracy, 0.001) ]
-
 ## Increases the score by the amount provided.
 func increase_score(amount: float) -> void:
 	score += floori(MAX_SCORE - absf(amount))
@@ -75,8 +72,7 @@ func update_accuracy(time: float) -> void:
 static func calc_max_points(tier: int, time: float) -> float:
 	if tier == MISS_TIER: return MISS_POINTS
 	var max_points: float = 100.0 - (tier * POINTS_WEIGHT)
-	if tier == 0 or (tier == 1 and not Global.settings.use_epics):
-		max_points = 100.0
+	if tier == 1 and not Global.settings.use_epics: tier -= 1
 	var points: float = (TIMINGS[tier] / time) * max_points
 	return min(points, max_points)
 
@@ -84,8 +80,7 @@ static func calc_max_points(tier: int, time: float) -> float:
 static func calc_judgement_points(tier: int) -> float:
 	#if tier == MISS_TIER: return MISS_POINTS
 	var points: float = 100.0 - (tier * POINTS_WEIGHT)
-	if tier == 0 or (not Global.settings.use_epics and tier == 1):
-		points = 100.0
+	if tier == 1 and not Global.settings.use_epics: tier -= 1
 	return points
 
 ## Returns a judgement tier based on the time provided.[br]

@@ -4,18 +4,28 @@ extends Note
 @onready var splash: AnimatedSprite2D = $"splash"
 @onready var arrow: AnimatedSprite2D = $"arrow"
 
-func reload(le_data: NoteData) -> void:
-	hold_size = le_data.length
-	player.play(str(le_data.column))
+func show_all() -> void:
+	if not arrow.visible: arrow.show()
 	var is_hold: bool = clip_rect and hold_size > 0.0
 	if clip_rect: clip_rect.visible = is_hold
-	if is_hold and hold_body: # damn
+	super()
+
+func reload(le_data: NoteData) -> void:
+	super(le_data)
+	hold_size = le_data.length
+	player.play(str(le_data.column))
+	if not arrow.visible: arrow.show()
+	if clip_rect and hold_size > 0.0 and hold_body: # damn
 		var color: = Note.COLORS[le_data.column]
 		hold_body.texture = arrow.sprite_frames.get_frame_texture("%s hold piece" % color, 0)
 		if hold_tail: hold_tail.texture = arrow.sprite_frames.get_frame_texture("%s hold tail" % color, 0)
-		display_hold(hold_size, data.speed)
+		display_hold(hold_size)
 		if hold_tail: hold_tail.position.y = hold_body.position.y + hold_body.size.y + 26.002
 
+func update_hold(delta: float) -> void:
+	super(delta)
+	if arrow.visible: arrow.hide()
+	if hold_tail: hold_tail.position.y = hold_body.position.y + hold_body.size.y + 26
 
 func display_splash() -> Node2D:
 	if not note_field: return null

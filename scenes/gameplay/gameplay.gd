@@ -30,11 +30,11 @@ var starting: bool = true
 func _ready() -> void:
 	if not tally: tally = Tally.new()
 	print_debug("max hit window is ", max_hit_window)
-	init_note_spawner()
 	if chart.assets:
 		assets = chart.assets
 		load_streams()
 		reload_hud()
+	init_note_spawner()
 	
 	# setup note fields.
 	var from_where: Control
@@ -53,14 +53,15 @@ func _ready() -> void:
 		skip_countdown = hud.skip_countdown
 		hud.update_score_text()
 		if not skip_countdown:
-			Conductor.set_time((Conductor.crotchet * -5.0))
+			Conductor.set_time(Conductor.crotchet * -5.0)
 			hud.start_countdown()
 	if skip_countdown:
-		Conductor.set_time((Conductor.crotchet * -3.0))
+		Conductor.set_time(Conductor.crotchet * -3.0)
 	
-	Global.update_discord("Playing a Song", "in Freeplay")
+	Global.update_discord("Solo (1 of 1)", "Zero Fucks")
 
 func _exit_tree() -> void:
+	Conductor.length = -1.0
 	Conductor.on_beat_hit.disconnect(on_beat_hit)
 
 func _process(delta: float) -> void:
@@ -68,6 +69,7 @@ func _process(delta: float) -> void:
 	if starting:
 		Conductor.update(Conductor.time + delta)
 		if Conductor.time >= 0.0:
+			Global.update_discord_timestamps(0.0, Conductor.length)
 			if music: music.play(0.0)
 			starting = false
 	elif music and music.playing:
@@ -86,30 +88,8 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		tally = null
 		get_tree().change_scene_to_file("res://scenes/menu/freeplay_menu.tscn")
 		return
-	var action: String = player_strums.get_action_name(event)
-	if not player_strums.has_control or action.dedent().is_empty():
-		return
-	var idx: int = player_strums.controls.find(action)
-	fucker_temp.pause_sing = Input.is_action_pressed(action)
-	if Input.is_action_just_released(action):
-		player_strums.play_animation(idx, NoteField.RepState.STATIC)
-		return
-	if Input.is_action_just_pressed(action):
-		var inputs: Array = note_group.get_children().filter(func(n) -> bool:
-			return n.data and n.data.column == idx and n.is_hittable(max_hit_window * 0.001) \
-				and n.data.side == note_fields.find(player_strums))
-		if inputs.is_empty():
-			player_strums.play_animation(idx, NoteField.RepState.PRESSED)
-		else:
-			inputs.sort_custom(func(n1: Note, n2: Note) -> bool:
-				return n1.data.time < n2.data.time)
-			var hit_note: Note = inputs[0]
-			if not hit_note:
-				player_strums.play_animation(idx, NoteField.RepState.PRESSED)
-			else:
-				if hit_note and not hit_note.was_hit:
-					player_strums.play_animation(idx, NoteField.RepState.CONFIRM)
-					on_note_hit(hit_note)
+	var action: String = player_strums.player.get_action_name(event)
+	if not action.dedent().is_empty(): fucker_temp.pause_sing = Input.is_action_pressed(action)
 
 
 func reload_hud() -> void:
@@ -124,6 +104,7 @@ func reload_hud() -> void:
 func load_streams() -> void:
 	if chart.assets.instrumental:
 		music.stream.set_sync_stream(0, chart.assets.instrumental)
+		Conductor.length = chart.assets.instrumental.get_length()
 		if chart.assets.vocals:
 			for i: int in chart.assets.vocals.size():
 				music.stream.set_sync_stream(i + 1, chart.assets.vocals[i])
@@ -137,15 +118,16 @@ func init_note_spawner() -> void:
 		note.scale = note_fields[data.side].scale
 		note.note_field = note_fields[data.side]
 	)
-	note_group.connect("on_note_deleted", func(type: int, note: Note) -> void:
-		if type == 0 and note.note_field == player_strums:
+	note_group.connect("on_note_deleted", func(type: Note.DeletionEventID, note: Note) -> void:
+		if type == Note.DeletionEventID.DIE and note.note_field == player_strums:
 			on_note_miss(note)
-		if type == 1:
+		if type == Note.DeletionEventID.HIT:
 			note.note_field.play_animation(note.data.column, NoteField.RepState.CONFIRM)
 			note.note_field.set_reset_timer(note.data.column, 0.3 * Conductor.crotchet)
 	)
 	if chart and not chart.notes.is_empty():
 		note_group.note_list = chart.notes.duplicate(true)
+		if Conductor.length < 0.0: Conductor.length = chart.notes.back().time
 
 
 @onready var fucker_temp: Actor2D = $"bf"
@@ -157,7 +139,6 @@ func on_note_hit(note: Note) -> void:
 	var judgement: Judgement = judgements.list[Tally.judge_time(abs_diff * 1000.0)]
 	if note.forced_splash or judgement.splash_type != Judgement.SplashType.DISABLED:
 		note.display_splash()
-	note.hide()
 	fucker_temp.sing(note.data.column, true)
 	# Scoring Stuff
 	tally.increase_score(abs_diff * 1000.0)

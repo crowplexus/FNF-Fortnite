@@ -21,6 +21,8 @@ signal on_bar_hit(bar: float)
 @export var playhead_copies_time: bool = true
 ## Man I wonder what this could be.
 var time: float = 0.0
+## Time limit (in seconds).
+var length: float = -1.0
 ## [code]time[/code] but used as a visual position (for notes, for example)
 var playhead: float = 0.0
 ## Beats per minute.
@@ -32,7 +34,7 @@ var rate: float = 1.0:
 	set(new_rate):
 		AudioServer.playback_speed_scale = new_rate
 		Engine.time_scale = new_rate
-## Beat Time in seconds, calculated when setting the bpm.
+## Beat Length in seconds, calculated when setting the bpm.
 var crotchet: float = 0.0
 
 ## Current song beat.
@@ -58,6 +60,7 @@ func set_time(new_time: float) -> void:
 	_prev_time = new_time
 	current_beat = (new_time * bpm) / 60.0
 	current_bar = current_beat / 4.0
+	_prev_beat = current_beat
 
 
 func update(delta: float) -> void:
@@ -67,23 +70,23 @@ func update(delta: float) -> void:
 	current_beat += beat_dt
 	current_bar += beat_dt / 4.0
 	# TODO: fix on_beat_hit float
-	#if _prev_beat < current_beat:
-	if floori(_prev_beat) < floori(current_beat):
+	#if current_beat > _prev_beat:
+	if floorf(current_beat) > floorf(_prev_beat):
 		if play_metronome_sound:
 			metronome.play(0.0)
 		on_beat_hit.emit(current_beat)
-		if floori(current_beat) % 6 == 0:
+		if floori(current_beat) % 4 == 0:
 			on_bar_hit.emit(current_bar)
 		_prev_beat = current_beat
 	_prev_time = time
 
 ## Converts Beats per minute to seconds.
-func get_bps() -> float:
-	return 60.0 / bpm
+func get_bps(bpm_value: float) -> float:
+	return 60.0 / bpm_value
 
 ## Returns the maximum amount of beats depending on the length given
-func get_total_beats(length: float = 0.0, beats_per_minute: float = 100.0) -> float:
-	return (beats_per_minute / 60.0) * length
+func get_total_beats(song_length: float = 0.0, beats_per_minute: float = 100.0) -> float:
+	return (beats_per_minute / 60.0) * song_length
 
 func _ready() -> void:
 	set_process_input(false)

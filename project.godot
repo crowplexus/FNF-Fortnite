@@ -12,7 +12,7 @@ config_version=5
 
 config/name="Fortnite"
 config/version="0.1.0"
-run/main_scene="uid://c5qnedjs8xhcw"
+run/main_scene="uid://81sm66x3qr7k"
 config/features=PackedStringArray("4.4", "Mobile")
 run/max_fps=144
 run/low_processor_mode=true

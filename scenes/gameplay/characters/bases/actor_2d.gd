@@ -8,7 +8,7 @@ extends Node2D
 ## Sing Animations for the character to play when hitting the corresponding notes.
 @export var sing_moves: PackedStringArray = ["singLEFT", "singDOWN", "singUP", "singRIGHT"]
 ## How long it takes for a character to stop singing after doing so.
-@export var sing_duration: float = 5.0
+@export var sing_duration: float = 2.0
 ## Icon shown on the health bar.
 @export var icon: HealthIcon
 ## Mark the character as a player (flips certain animations when its used as an opponent).
@@ -28,12 +28,12 @@ func _exit_tree() -> void:
 
 func _process(delta: float) -> void:
 	if idle_cooldown > 0.0 and not pause_sing:
-		idle_cooldown -= delta * (sing_duration * Conductor.crotchet)
+		idle_cooldown -= delta / (Conductor.crotchet * sing_duration)
 		if idle_cooldown <= 0.0:
 			dance()
 
 func _try_dance(beat: float) -> void:
-	if floori(beat) % floori(dance_interval) == 0 and idle_cooldown <= 0.0:
+	if fmod(beat, dance_interval) == 0 and idle_cooldown <= 0.0:
 		dance()
 
 func play_animation(animation: String, forced: bool = false, reversed: bool = false, speed: float = 1.0) -> void:
