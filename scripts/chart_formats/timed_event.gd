@@ -10,10 +10,11 @@ extends Resource
 ## Function to run when the event loads.
 @export var eload: Callable
 ## Function to run whenever the event gets fired.
-@export var efire: Callable = func():
-	return self.values
+@export var efire: Callable
 ## Internal values in the event.
 @export var values: Dictionary = {}
+## Internal value, indicates that the event has already been fired, so no point in doing it again.
+var was_fired: bool = false
 
 func _to_string() -> String:
 	return "[%s, %s, %s]" % [ name, time, values ]
@@ -24,17 +25,15 @@ static func velocity_change(_time: float, speed: float = 1.0) -> TimedEvent:
 	vc.name = &"Scroll Speed Change"
 	vc.time = _time
 	vc.values.speed = speed
-	vc.efire = func() -> int:
-		return vc.values.speed
 	return vc
 
 ### Returns a BPM Change event.
-static func bpm_change(_time: float, bpm: float = 100.0) -> TimedEvent:
-	var vc: = TimedEvent.new()
-	vc.name = &"BPM Change"
-	vc.time = _time
-	vc.values.bpm = bpm
-	vc.efire = func() -> int:
-		Conductor.bpm = vc.values.bpm
-		return vc.values.bpm
-	return vc
+#static func bpm_change(_time: float, bpm: float = 100.0) -> TimedEvent:
+#	var vc: = TimedEvent.new()
+#	vc.name = &"BPM Change"
+#	vc.time = _time
+#	vc.values.bpm = bpm
+#	vc.efire = func() -> int:
+#		Conductor.bpm = vc.values.bpm
+#		return vc.values.bpm
+#	return vc

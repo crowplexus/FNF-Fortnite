@@ -18,6 +18,8 @@ const COLORS: PackedStringArray = ["purple","blue","green","red"]
 
 ## Default Note Distance (in pixels)
 const DISTANCE: float = 450.0
+## Default Hold Distance (in pixels)
+const DISTANCE_HOLD: float = 2000.0
 
 static func get_scroll_as_vector(scroll: int) -> Vector2:
 	match scroll:
@@ -66,12 +68,12 @@ func _ready() -> void:
 		if has_node("clip_rect/hold_tail"): hold_tail = get_node("clip_rect/hold_tail")
 		clip_rect.scale *= -scroll_mult
 
-func update_hold(delta:  float) -> void:
+func update_hold(delta: float) -> void:
 	#moving = false
-	if _stupid_visual_bug:
-		hold_size += (data.time - Conductor.time) / absf(clip_rect.scale.y)
-		_stupid_visual_bug = false
-	hold_size -= delta / absf(clip_rect.scale.y)
+	#if _stupid_visual_bug:
+	#	hold_size += (data.time - Conductor.time) / absf(clip_rect.scale.y)
+	#	_stupid_visual_bug = false
+	hold_size -= delta #/ absf(clip_rect.scale.y)
 	#display_hold(hold_size)
 	if hold_size <= 0.0:
 		hide_all()
@@ -86,12 +88,14 @@ func reload(_data: NoteData) -> void:
 
 ## Use this function for implementing hold note visuals.[br]
 ## Leave empty if you want your note type to not have holds.
-func display_hold(size: float = 0.0, speed: float = data.speed if data else 1.0) -> void:
-	# general implementation, should work for everything???
+func display_hold(size: float = 0.0, speed: float = 0.0 if data else 1.0) -> void:
 	if not data or not hold_body or not clip_rect:
 		return
-	var calc: float = size * (Note.DISTANCE * 2.0) * speed
-	hold_body.size = Vector2(hold_body.texture.get_width(), calc / absf(hold_body.scale.y))
+	if speed == 0.0:
+		speed = note_field.speed * note_field.get_receptor(data.column if data else 0).speed if note_field else 1.0
+	# general implementation, should work for everything???
+	hold_body.size.y = (Note.DISTANCE_HOLD * speed) * size
+	hold_body.size.x = hold_body.texture.get_width()
 
 ## Use this function for implementing splash visuals.[br]
 ## Return null if you don't want note splashes on your note type.

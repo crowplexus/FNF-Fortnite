@@ -23,6 +23,9 @@ var assets: ChartAssets
 var game_mode: PlayMode = PlayMode.FREEPLAY
 var judgements: JudgementList = preload("res://assets/default/judgements.tres")
 var note_fields: Array[NoteField] = []
+var timed_events: Array[TimedEvent] = []
+var event_position: int = 0
+var should_process_events: bool = true
 
 var max_hit_window: float = Tally.TIMINGS.back()
 var starting: bool = true
@@ -44,6 +47,10 @@ func _ready() -> void:
 		if node is NoteField: note_fields.append(node)
 	
 	player_strums = note_fields[1]
+	for note_field: NoteField in note_fields:
+		note_field.speed = chart.get_speed()
+	print_debug("scroll speed changed to ", chart.get_speed(), " at ", Conductor.time)
+	
 	Conductor.reset(chart.get_bpm(), false)
 	Conductor.on_beat_hit.connect(on_beat_hit)
 	
@@ -74,9 +81,8 @@ func _process(delta: float) -> void:
 			starting = false
 	elif music and music.playing:
 		Conductor.update(music.get_playback_position() + AudioServer.get_time_since_last_mix())
-	# prevent that fuckass bug where the notes inside the group will still move
-	if note_group.spawning_complete():
-		note_group.active = false
+	if not starting and should_process_events:
+		process_timed_events()
 	# hud bumping #
 	if hud_layer.scale != Vector2.ONE:
 		hud_layer.scale = hud.get_bump_lerp_vector(hud_layer.scale, Vector2.ONE, delta)
@@ -91,6 +97,26 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	var action: String = player_strums.player.get_action_name(event)
 	if not action.dedent().is_empty(): fucker_temp.pause_sing = Input.is_action_pressed(action)
 
+func process_timed_events() -> void:
+	if timed_events.is_empty() or event_position >= timed_events.size():
+		should_process_events = false
+		return
+	var current_event: TimedEvent = timed_events[event_position]
+	if not current_event.was_fired:
+		#var idx: int = timed_events.find(current_event) # if i need it...
+		if Conductor.time < current_event.time:
+			return
+		if current_event.efire:
+			current_event.efire.call()
+		else: # hardcoded events yayy !!!! ! ! ! !
+			match current_event.name:
+				&"Scroll Speed Change":
+					for note_field: NoteField in note_fields:
+						note_field.speed_change_tween = create_tween()
+						note_field.speed_change_tween.tween_property(note_field, "speed", current_event.values.speed, 1.0)
+					print_debug("scroll speed changed to ", current_event.values.speed, " at ", Conductor.time)
+			current_event.was_fired = true
+	event_position += 1
 
 func reload_hud() -> void:
 	if chart.assets.hud:
@@ -136,7 +162,8 @@ func on_note_hit(note: Note) -> void:
 	if note.was_hit: return
 	note.was_hit = true
 	var abs_diff: float = absf(note.data.time - Conductor.playhead)
-	var judgement: Judgement = judgements.list[Tally.judge_time(abs_diff * 1000.0)]
+	var judged_tier: int = Tally.judge_time(abs_diff * 1000.0)
+	var judgement: Judgement = judgements.list[judged_tier]
 	if note.forced_splash or judgement.splash_type != Judgement.SplashType.DISABLED:
 		note.display_splash()
 	fucker_temp.sing(note.data.column, true)
@@ -147,6 +174,7 @@ func on_note_hit(note: Note) -> void:
 		tally.breaks += 1
 	tally.increase_combo(1)
 	tally.update_accuracy(abs_diff * 1000.0)
+	tally.update_tier_score(judged_tier)
 	# Update HUD
 	hud.display_judgement(judgement.texture)
 	hud.display_combo(tally.combo)

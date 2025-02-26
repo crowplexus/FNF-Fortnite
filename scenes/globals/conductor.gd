@@ -29,13 +29,18 @@ var playhead: float = 0.0
 var bpm: float = 100.0:
 	set(new_bpm):
 		bpm = new_bpm
-		crotchet = (60.0 / bpm)
+		crotchet = 60.0 / bpm
+## Audio Playback Speed rate.
 var rate: float = 1.0:
 	set(new_rate):
 		AudioServer.playback_speed_scale = new_rate
 		Engine.time_scale = new_rate
 ## Beat Length in seconds, calculated when setting the bpm.
 var crotchet: float = 0.0
+## List of Timing Changes.
+var timing_changes: Array[SongTimeChange] = [
+	SongTimeChange.make(0.0, 100.0) # DUMMY
+]
 
 ## Current song beat.
 var current_beat: float = 0.0:
@@ -59,26 +64,46 @@ func set_time(new_time: float) -> void:
 	time = new_time
 	_prev_time = new_time
 	current_beat = (new_time * bpm) / 60.0
-	current_bar = current_beat / 4.0
+	current_bar = current_beat * 4.0
 	_prev_beat = current_beat
 
 
-func update(delta: float) -> void:
-	time = delta
+func update(new_time: float) -> void:
+	time = new_time # usually would be incremented by delta but I need this to be *set* for synching purposes
 	playhead = time
-	var beat_dt: float = (bpm / 60.0) * (time - _prev_time)
+
+	var ctc: SongTimeChange = Conductor.get_timed_change(time)
+	if ctc.bpm != bpm:
+		print_debug("Changed BPM from ", bpm, " to ", ctc.bpm, " at timestamp ", time)
+		bpm = ctc.bpm
+	var beat_dt: float = ctc.calculate_beat_delta(time - _prev_time)
+
 	current_beat += beat_dt
-	current_bar += beat_dt / 4.0
-	# TODO: fix on_beat_hit float
-	#if current_beat > _prev_beat:
+	current_bar += beat_dt * 4.0
+
 	if floorf(current_beat) > floorf(_prev_beat):
 		if play_metronome_sound:
 			metronome.play(0.0)
 		on_beat_hit.emit(current_beat)
-		if floori(current_beat) % 4 == 0:
+		if fmod(floorf(current_beat), 4.0) == 0:
 			on_bar_hit.emit(current_bar)
 		_prev_beat = current_beat
+
 	_prev_time = time
+
+## Returns the latest bpm according to the time frame.
+func get_timed_change(time: float) -> SongTimeChange:
+	if Conductor.timing_changes.is_empty():
+		push_error("No Timing Changes are available, how did you do that? it always has at least one")
+		return null
+	var change: SongTimeChange = Conductor.timing_changes[0]
+	if time <= 0.0: return change # This is, most likely, the first change.
+	for i: SongTimeChange in Conductor.timing_changes:
+		if i.time >= time: # NOTE: Test with time parameter being exactly at a timing change, or after all timing changes
+			change = i
+		else: # list is sorted, so exit early.
+			break
+	return change
 
 ## Converts Beats per minute to seconds.
 func get_bps(bpm_value: float) -> float:

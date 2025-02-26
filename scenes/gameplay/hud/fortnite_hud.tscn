@@ -162,13 +162,13 @@ anchors_preset = -1
 anchor_left = -0.002
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 456.11
+offset_left = 455.902
 offset_top = -6.0
-offset_right = 32.2079
-offset_bottom = 5.735
+offset_right = 170.0
+offset_bottom = 6.0
 grow_horizontal = 2
 grow_vertical = 2
-text = "0:00"
+text = "0:00.000"
 label_settings = SubResource("LabelSettings_3l1f0")
 
 [node name="countdown" type="Control" parent="."]

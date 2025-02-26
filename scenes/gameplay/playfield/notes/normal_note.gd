@@ -20,7 +20,8 @@ func reload(le_data: NoteData) -> void:
 		hold_body.texture = arrow.sprite_frames.get_frame_texture("%s hold piece" % color, 0)
 		if hold_tail: hold_tail.texture = arrow.sprite_frames.get_frame_texture("%s hold tail" % color, 0)
 		display_hold(hold_size)
-		if hold_tail: hold_tail.position.y = hold_body.position.y + hold_body.size.y + 26.002
+		if hold_tail:
+			hold_tail.position.y = hold_body.position.y + hold_body.size.y
 
 func update_hold(delta: float) -> void:
 	super(delta)

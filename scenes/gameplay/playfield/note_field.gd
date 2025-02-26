@@ -11,12 +11,17 @@ enum RepState {
 var keys_held: Array[bool] = []
 ## Player Node attached to this note field, will try to set automatically if null.
 @export var player: Player
+## Note Speed for this particular note field, is affected by the chart, may be increased by timed events.
+@export var speed: float = 1.0
+var speed_change_tween: Tween
 
 
 func _ready() -> void:
 	if not player and has_node("player"):
 		player = get_node("player")
 
+func get_receptor(idx: int) -> Node:
+	return get_child(idx % get_child_count())
 
 func play_animation(idx: int = 0, state: = NoteField.RepState.STATIC, force: bool = true) -> void:
 	var receptor: = get_child(idx % get_child_count())

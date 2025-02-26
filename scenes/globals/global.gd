@@ -99,13 +99,15 @@ func get_mode_string(game_mode: int) -> String:
 		_: return ""
 
 ## Formats a float to a digital clock string, like: 1:10:25[br]
-func format_to_time(value: float) -> String:
+func format_to_time(value: float, show_milliseconds: bool = false) -> String:
 	var minutes: float = Global.linear_to_minutes(value)
 	var seconds: float = Global.linear_to_seconds(value)
 	var hours: int = Global.linear_to_hours(value)
 	var formatter: String = "%2d:%02d" % [minutes, seconds]
 	if hours != 0: # append hours if needed
-		formatter = "%2d:%02d:02d" % [hours, minutes, seconds]
+		formatter += ":02d" % [hours, minutes, seconds]
+	if show_milliseconds:
+		formatter += ".%02d" % int((value - int(value)) * 1000)
 	return formatter
 
 ## Gets the current weekday as a name

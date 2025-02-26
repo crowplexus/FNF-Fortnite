@@ -40,8 +40,12 @@ func move_present_nodes() -> void:
 			continue
 		# TODO: move to note class?
 		var data: NoteData = NoteData.EMPTY if not node.data else node.data		
-		if node.moving:
-			node.position.y = Note.DISTANCE * (Conductor.playhead - data.time) * data.speed / absf(node.scale.y)
+		if node.moving: # NOTE: node is the note itself
+			var strum_speed: float = 1.0
+			if node and node.note_field: # trying to add SVs...
+				var field: NoteField = node.note_field
+				strum_speed = field.speed * field.get_receptor(data.column).speed
+			node.position.y = Note.DISTANCE * (Conductor.playhead - data.time) * strum_speed / absf(node.scale.y)
 			node.position.y *= node.scroll_mult.y
 			node.position.y += node.note_field.global_position.y
 		# must be done no matter what to prevent orphan notes

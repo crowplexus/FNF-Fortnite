@@ -37,6 +37,8 @@ var score_system: ScoringSystem = ScoringSystem.Judge
 var notes_hit_count: int = 0
 ## Used for accuracy calculations.
 var accuracy_points: float = 0.0
+## Counts how many of (tier judgement) you've hit.
+var tiers_scored: Array[int] = [0, 0, 0, 0, 0]
 
 ## Increases the score by the amount provided.
 func increase_score(amount: float) -> void:
@@ -68,6 +70,12 @@ func update_accuracy(time: float) -> void:
 			accuracy_points += calc_judgement_points(judge_time(time))
 			accuracy = accuracy_points / notes_hit_count
 
+## Updates the counter for the tiers you have.
+func update_tier_score(tier: int) -> void:
+	if tier > tiers_scored.size():
+		tiers_scored.append(0)
+	tiers_scored[tier] += 1
+
 ## Calculate the accuracy points for a single hit (in milliseconds).
 static func calc_max_points(tier: int, time: float) -> float:
 	if tier == MISS_TIER: return MISS_POINTS
@@ -92,3 +100,16 @@ static func judge_time(ms: float) -> int:
 			can_return = false
 		if can_return: return i
 	return TIMINGS.find(TIMINGS.back())
+
+## Returns a string with an grade, depends on what judgements have been hit in the tier list given.[br]
+## Hitting only tier 1s results in "Perf"[br]
+## Hitting at least 1 tier 2 results in "Great"[br]
+## Hitting at least 1 tier 3 results in "Pass" 
+static func get_tier_grade(tiers_scored: Array[int], misses: int = 0) -> String:
+	var fc_tier: String = ""
+	if tiers_scored.size() >= 3: # 3 tiers or more
+		if tiers_scored[3] == 0 and misses == 0:
+			if tiers_scored[0] > 0: fc_tier = "Perf" # Epic
+			if tiers_scored[1] > 0: fc_tier = "Great" # Sick
+			if tiers_scored[2] > 0: fc_tier = "Piss" if randf_range(0, 100) < 0.5 else "Pass" # Good, 1/500 chance of saying Piss instead
+	return fc_tier

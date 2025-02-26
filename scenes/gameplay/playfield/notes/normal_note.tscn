@@ -158,7 +158,6 @@ script = ExtResource("1_31kjc")
 
 [node name="clip_rect" type="Control" parent="."]
 modulate = Color(1, 1, 1, 0.8)
-clip_contents = true
 layout_mode = 3
 anchors_preset = 0
 offset_left = -32.0

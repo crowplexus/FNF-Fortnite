@@ -32,11 +32,10 @@ static func parse_from_string(json: Dictionary) -> FNFChart:
 	var is_psych: bool = legacy_mode and "format" in chart_dict and chart_dict.format == "psych_v1_convert"
 	
 	if "speed" in chart_dict: chart.velocity_changes[0].values.speed = chart_dict.speed
-	if "bpm" in chart_dict: chart.bpm_changes[0].values.bpm = chart_dict.bpm
+	if "bpm" in chart_dict: chart.timing_changes[0].bpm = chart_dict.bpm
 
 	var fake_bpm: float = chart.get_bpm()
 	var fake_crotchet: float = (60.0 / fake_bpm)
-	var current_speed: float = chart.get_speed()
 	var fake_timer: float = 0.0
 	var max_columns: int = 4
 	
@@ -57,31 +56,34 @@ static func parse_from_string(json: Dictionary) -> FNFChart:
 				swag_note.side = int(must_hit_section)
 				if column % (max_columns if is_psych else max_columns * 2) >= max_columns:
 					swag_note.side = int(not must_hit_section)
-			swag_note.speed = current_speed
+			#if swag_note.length > 0.0:
+			#	swag_note.length = swag_note.length / (fake_crotchet * 0.25)
 			chart.notes.append(swag_note)
 		
 		if measure["changeBPM"] == true and fake_bpm != measure.bpm:
 			fake_bpm = measure.bpm
 			fake_crotchet = (60.0 / measure.bpm)
-			chart.bpm_changes.append(TimedEvent.bpm_change(fake_timer, measure.bpm))
+			print_debug("Pushed change at ", fake_timer, " which changes the bpm to ", measure.bpm)
+			chart.timing_changes.append(SongTimeChange.make(fake_timer, measure.bpm))
 		
 		fake_timer += fake_crotchet / 4.0
 	
-	var ghosts: int = 0
-	var ii: int = 0
-	for i: int in chart.notes.size():
-		if i == 0: continue
-		var cur: NoteData = chart.notes[i]
-		var prev: NoteData = chart.notes[i - 1]
-		if is_equal_approx(cur.time, prev.time) and cur.column == prev.column:
-			chart.notes.remove_at(i)
-			ghosts += 1
-		ii += 1
-	print_debug("deleted ", ghosts, " ghost notes from ", ii, " total notes")
-	
 	chart.notes.sort_custom(func(one: NoteData, two: NoteData): return one.time < two.time)
-	chart.bpm_changes.sort_custom(func(one: TimedEvent, two: TimedEvent): return one.time < two.time)
+	chart.timing_changes.sort_custom(func(one: SongTimeChange, two: SongTimeChange): return one.time < two.time)
 	chart.velocity_changes.sort_custom(func(one: TimedEvent, two: TimedEvent): return one.time < two.time)
+	Conductor.timing_changes = chart.timing_changes
+	
+	#var ghosts: int = 0
+	#var total_notes_collected: int = 0
+	#for i: int in chart.notes.size():
+	#	if i == 0: continue
+	#	var cur: NoteData = chart.notes[i]
+	#	var prev: NoteData = chart.notes[i - 1]
+	#	if prev and is_equal_approx(cur.time, prev.time) and cur.column == prev.column:
+	#		chart.notes.remove_at(i)
+	#		ghosts += 1
+	#	total_notes_collected += 1
+	#print_debug("deleted ", ghosts, " ghost notes from ", total_notes_collected, " total notes")
 	
 	return chart
 

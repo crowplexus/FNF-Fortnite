@@ -18,8 +18,6 @@ static var EMPTY: NoteData = NoteData.new():
 @export var kind: StringName = &"default"
 ## Note Length, spawns a tail in the note if specified.
 @export var length: float = 0.0
-## Note Speed, used for note movement during gameplay.
-@export var speed: float = 1.0
 
 
 func _to_string() -> String:
@@ -33,7 +31,7 @@ static func from_array(data: Array, max_columns: int = 4) -> NoteData:
 	swag_note.side = 0 if raw_column > (max_columns - 1) else 1
 	#print_debug(swag_note.side)
 	if data.size() > 3 and data[3] != "":
-		swag_note.kind = StringName(data[3])
+		swag_note.kind = &"%s" % data[3]
 	swag_note.length = float(data[2]) * 0.001
 	swag_note.column = raw_column % max_columns
 	return swag_note

@@ -11,10 +11,10 @@ extends Resource
 @export var velocity_changes: Array[TimedEvent] = [
 	TimedEvent.velocity_change(0.0, 1.0)
 ]
-## List of BPM Changes in the chart,
+## List of Timing Changes in the chart,
 ## The first item will always be the default.
-@export var bpm_changes: Array[TimedEvent] = [
-	TimedEvent.bpm_change(0.0, 100.0)
+@export var timing_changes: Array[SongTimeChange] = [
+	SongTimeChange.make(0.0, 100.0)
 ]
 ## Values extracted when parsing (just in case...)
 @export var parsed_values: Dictionary[String, Variant] = {
@@ -24,11 +24,11 @@ extends Resource
 
 ## Returns the BPM value for a BPM Change event.[br]
 ## Defaults to 0 for default bpm.
-func get_bpm(change: int = 0) -> float: return bpm_changes[change].values.bpm
+func get_bpm(change: int = 0) -> float: return timing_changes[change].bpm
 
 ## Returns the Time value for a BPM Change event.[br]
 ## Defaults to 0 for default time.
-func get_bpm_time(change: int = 0) -> float: return bpm_changes[change].values.time
+func get_bpm_time(change: int = 0) -> float: return timing_changes[change].time
 
 ## Returns the Speed value for a Velocity Change event.[br]
 ## Defaults to 0 for default speed.

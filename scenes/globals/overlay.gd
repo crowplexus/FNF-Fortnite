@@ -2,7 +2,7 @@ extends CanvasLayer
 
 @onready var fps_label: Label = $"%fps_label"
 @onready var update_timer: Timer = $"%update_timer"
-
+var muted: bool = false
 
 func _ready() -> void:
 	update_timer.timeout.connect(func() -> void:
@@ -13,10 +13,17 @@ func _ready() -> void:
 	update_overlay()
 
 func _unhandled_key_input(event: InputEvent) -> void:
-	if event.pressed:
-		match event.keycode:
-			61, 4194437: update_master_volume(5)
-			45, 4194435: update_master_volume(-5)
+	if not event.pressed: return
+	match event.keycode:
+		KEY_EQUAL,	KEY_KP_MULTIPLY	:
+			if Global.settings.master_mute:
+				Global.settings.master_mute = false
+			update_master_volume(5)
+		KEY_MINUS,	KEY_KP_SUBTRACT	:
+			if Global.settings.master_mute:
+				Global.settings.master_mute = false
+			update_master_volume(-5)
+		KEY_0,		KEY_KP_0		: Global.settings.master_mute = not Global.settings.master_mute
 
 func update_overlay() -> void:
 	fps_label.text = "%s FPS\n%s RAM" % [

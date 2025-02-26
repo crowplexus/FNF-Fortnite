@@ -29,8 +29,8 @@ func _ready() -> void:
 	countdown.hide()
 
 func _process(_delta: float) -> void:
-	var time: float = 0.0 if Conductor.time < 0.0 else Conductor.time
-	time_text.text = Global.format_to_time(Conductor.time)
+	if Conductor.time >= 0.0:
+		time_text.text = Global.format_to_time(Conductor.time, true)
 
 func _on_settings_changed() -> void:
 	match Global.settings.scroll:
@@ -97,11 +97,13 @@ func countdown_progress() -> void:
 	_countdown_iteration += 1
 
 func update_score_text() -> void:
+	var fc_string: String = Tally.get_tier_grade(game.tally.tiers_scored, game.tally.misses + game.tally.breaks)
 	score_text.text = "Score: %s | Accuracy: %s%% | Misses: %s" % [
 		0 if not game or not game.tally else game.tally.score,
 		0.0 if not game or not game.tally else snappedf(game.tally.accuracy, 0.001),
 		0 if not game or not game.tally else game.tally.misses,
 	]
+	if not fc_string.is_empty(): score_text.text += " [%s]" % fc_string
 
 func display_judgement(image: Texture2D) -> void:
 	combo_group.display_judgement(image)

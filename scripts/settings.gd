@@ -8,9 +8,14 @@ const IGNORED_PROPERTIES: PackedStringArray = ["resource_local_to_scene", "resou
 	set(new_mv):
 		master_volume = clampi(new_mv, 0, 100)
 		AudioServer.set_bus_volume_db(0, linear_to_db(master_volume * 0.01))
+## Shortcut setting for muting the whole game.
+@export var master_mute: bool = false:
+	set(new_mute):
+		AudioServer.set_bus_mute(0, new_mute)
+		master_mute = new_mute
 ## Alternates between in-game scroll directions.
 @export_enum("Up:0","Down:1")
-var scroll: int = 0
+var scroll: int = 1
 ## Locks framerate to your monitor's refresh rate[br]
 ## May help reducing screen tearing.
 @export var vsync: bool = false:

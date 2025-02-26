@@ -7,6 +7,7 @@ extends Node2D
 var reset_timer: float = 0.0
 var reset_state: int = NoteField.RepState.STATIC
 var _last_state: int = -1
+var speed: float = 1.0
 
 
 func _ready() -> void:
