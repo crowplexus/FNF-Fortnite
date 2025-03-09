@@ -19,7 +19,7 @@ func _ready() -> void:
 	#Global.request_audio_fade(Global.bgm, 1.0, 0.3)
 	song_container.get_child(0).text = "Random"
 	for song: SongItem in songs.list:
-		var i: int = songs.list.find(song)
+		#var i: int = songs.list.find(song)
 		var item: Control = random_template.duplicate()
 		song_container.add_child(item)
 		item.name = song.folder
@@ -37,7 +37,7 @@ func _process(delta: float) -> void:
 		Conductor.update(Global.bgm.get_playback_position() + AudioServer.get_time_since_last_mix())
 	for item: Control in song_container.get_children():
 		var index: int = item.get_index()
-		var scaled_y: float = remap(index, 0, 1, 0, 1.3)
+		#var scaled_y: float = remap(index, 0, 1, 0, 1.3)
 		item.position.x = lerpf(item.position.x, item.size.x + (60 * sin(index - selected)), exp(delta * 10))
 		item.position.y = lerpf(item.position.y, index * ((item.size.y * item.scale.y) + 10) + 120, exp(delta * 80))
 

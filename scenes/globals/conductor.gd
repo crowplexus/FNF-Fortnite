@@ -13,10 +13,10 @@ signal on_bar_hit(bar: float)
 
 ## If the conductor is active, disables _process function when disabled,
 ## Which would allow you to update it manually if needed.
-@export var active: bool = true:
+@export var active: bool = false:
 	set(v):
-		set_process(v)
 		active = v
+		set_process(v)
 ## If the playhead variable should copy the time variable.
 @export var playhead_copies_time: bool = true
 ## Man I wonder what this could be.
@@ -56,8 +56,8 @@ var _prev_time: float = 0.0
 ## Resets the Conductor's values, call only when needed,
 ## as it can cause issues otherwise.
 func reset(_bpm: float = 100.0, _active: bool = false) -> void:
-	bpm = _bpm
 	active = _active
+	bpm = _bpm
 	set_time(0.0)
 
 func set_time(new_time: float) -> void:
@@ -70,7 +70,7 @@ func set_time(new_time: float) -> void:
 
 func update(new_time: float) -> void:
 	time = new_time # usually would be incremented by delta but I need this to be *set* for synching purposes
-	playhead = time
+	if playhead_copies_time: playhead = time
 
 	var ctc: SongTimeChange = Conductor.get_timed_change(time)
 	if ctc.bpm != bpm:
@@ -92,14 +92,14 @@ func update(new_time: float) -> void:
 	_prev_time = time
 
 ## Returns the latest bpm according to the time frame.
-func get_timed_change(time: float) -> SongTimeChange:
+func get_timed_change(timestamp: float) -> SongTimeChange:
 	if Conductor.timing_changes.is_empty():
 		push_error("No Timing Changes are available, how did you do that? it always has at least one")
 		return null
 	var change: SongTimeChange = Conductor.timing_changes[0]
 	if time <= 0.0: return change # This is, most likely, the first change.
 	for i: SongTimeChange in Conductor.timing_changes:
-		if i.time >= time: # NOTE: Test with time parameter being exactly at a timing change, or after all timing changes
+		if i.time >= timestamp: # NOTE: Test with time parameter being exactly at a timing change, or after all timing changes
 			change = i
 		else: # list is sorted, so exit early.
 			break

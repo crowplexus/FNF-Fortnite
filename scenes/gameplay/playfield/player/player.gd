@@ -1,6 +1,9 @@
 class_name Player
 extends Node
 
+signal hit_note(note: Note)
+signal miss_note(note: Note, dir: int)
+
 ## Actions to use for controlling.
 @export var controls: PackedStringArray = [ "note_left", "note_down", "note_up", "note_right" ]
 ## How many of the receptors are being held at a time
@@ -14,6 +17,9 @@ func _ready() -> void:
 	note_field = get_parent()
 	if get_tree().current_scene and get_tree().current_scene is Node2D:
 		game = get_tree().current_scene
+		if game is Gameplay:
+			hit_note.connect(game.on_note_hit)
+			miss_note.connect(game.on_note_miss)
 	keys_held.resize(controls.size())
 	keys_held.fill(false)
 
@@ -21,70 +27,71 @@ func _process(delta: float) -> void:
 	if not game or not game.note_group or game.note_group.note_list.is_empty():
 		return
 	for note: Note in game.note_group.get_children():
-		if not note.visible or note.hold_size <= 0.0 or note.hold_timer <= 0.0 or \
-			note.data.side != note_field.get_index() or note.was_missed or note.dropped:
+		if not note.visible or note.hold_size <= 0.0 or note.hold_timer <= 0.0 or note.side != note_field.get_index() or not note.was_hit:
 			continue
 		note.update_hold(delta)
-		if keys_held[note.data.column]:
-			note_field.play_animation(note.data.column, NoteField.RepState.CONFIRM)
+		if keys_held[note.column]:
+			note_field.play_animation(note.column, NoteField.RepState.CONFIRM)
 		else:
 			note.hold_timer -= 0.05 * absf(note.hold_size)
 		if note.hold_timer <= 0.0:
-			note_field.play_animation(note.data.column, NoteField.RepState.STATIC, true)
-			game.on_note_miss(note)
+			note_field.play_animation(note.column, NoteField.RepState.STATIC, true)
+			miss_note.emit(note, note.column)
 			note.dropped = true
 			note.moving = true
 			#note.hide_all()
 
-
-func get_action_id(event: InputEvent) -> int:
-	var id: int = -1
-	for garlic_bread: int in controls.size():
-		if event.is_action(controls[garlic_bread]):
-			id = garlic_bread
-			#print("a ", id)
-			break
-	return id
-
-
-func get_action_name(event: InputEvent) -> String:
-	var id: String = ""
-	for garlic_bread: String in controls:
-		if event.is_action(garlic_bread):
-			id = garlic_bread
-			break
-	return id
-
-
 func _unhandled_key_input(event: InputEvent) -> void:
-	if not game is Gameplay or not note_field or force_disable_input:
+	var idx: int = get_action_id(event)
+	if not game is Gameplay or not note_field or force_disable_input or idx == -1:
 		return
-	var action: String = get_action_name(event)
-	if action.dedent().is_empty():
-		return
-	var idx: int = controls.find(action)
+	var action: String = controls[idx]
 	keys_held[idx % keys_held.size()] = Input.is_action_pressed(action)
 	if Input.is_action_just_released(action):
 		note_field.play_animation(idx, NoteField.RepState.STATIC)
 		return
 	if Input.is_action_just_pressed(action):
-		var inputs: Array = game.note_group.get_children().filter(func(n) -> bool:
-			return n.data and n.data.column == idx and n.is_hittable(game.max_hit_window * 0.001) \
-				and n.data.side == note_field.get_index() and not n.was_hit and not n.was_missed)
-		if inputs.is_empty():
-			note_field.play_animation(idx, NoteField.RepState.PRESSED)
+		# two methods for inputs I'm just testing this shit
+		##var hit_note: Note
+		##for n: Note in game.note_group.get_children():
+		##	if n.column == idx and n.side == note_field.get_index() and n.is_hittable(game.max_hit_window * 0.001) not n.was_missed:
+		##			hit_note = n
+		##			break
+		var notes: Array = game.note_group.get_children().filter(func(n: Note) -> bool:
+			return n.column == idx and n.side == note_field.get_index() and n.is_hittable(game.max_hit_window * 0.001))
+		# TODO: fix the one bug where you hit both notes in a jack
+		if not notes.is_empty():
+			var note: Note = notes[0]
+			notes.sort_custom(func(a: Note, b: Note) -> int: return a.time - b.time)
+			hit_note.emit(note)
+			if note.was_hit:
+				note.hit_time = note.time - Conductor.playhead
+				if note.hold_size > 0.0:
+					note.hold_timer = 1.0
+					note._stupid_visual_bug = note.hit_time < 0.0
+					note.allowed_to_hide = false
+				else:
+					note.hide_all()
+				note_field.play_animation(idx, NoteField.RepState.CONFIRM)
 		else:
-			inputs.sort_custom(func(n1: Note, n2: Note) -> bool:
-				return n1.data.time < n2.data.time)
-			var hit_note: Note = inputs[0]
-			if not hit_note:
-				note_field.play_animation(idx, NoteField.RepState.PRESSED)
-			else:
-				if hit_note:
-					note_field.play_animation(idx, NoteField.RepState.CONFIRM)
-					game.on_note_hit(hit_note)
-					if hit_note.hold_size > 0.0:
-						hit_note.hold_timer = 1.0
-						hit_note._stupid_visual_bug = (hit_note.data.time - Conductor.time) < 0.0
-					else:
-						hit_note.hide_all()
+			note_field.play_animation(idx, NoteField.RepState.PRESSED)
+			if not Global.settings.ghost_tapping:
+				miss_note.emit(null, idx)
+
+func get_action_id(event: InputEvent) -> int:
+	var id: int = -1
+	if event.is_echo(): return id
+	for garlic_bread: int in controls.size():
+		if event.is_action(controls[garlic_bread]):
+			id = garlic_bread
+			break
+	return id
+
+func get_action_name(event: InputEvent) -> String:
+	var id: String
+	if event.is_echo(): return id
+	for garlic_bread: String in controls:
+		if event.is_action(garlic_bread):
+			id = garlic_bread
+			break
+	return id

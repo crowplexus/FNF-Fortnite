@@ -9,6 +9,7 @@ var settings: Settings = Settings.new()
 
 func _ready() -> void:
 	reset_discord()
+	TranslationServer.set_locale(settings.language)
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event.keycode == KEY_F11 and event.pressed:
@@ -67,7 +68,7 @@ const HOURS_MAX: int = 3600
 const SECS_MAX: int = 60
 
 ## Converts a linear value to the required amount to format it as hours.
-func linear_to_hours(value: float) -> int: return int(value) / HOURS_MAX
+func linear_to_hours(value: float) -> int: return int(value / HOURS_MAX)
 ## Converts a linear value to the required amount to format it as minutes.
 func linear_to_minutes(value: float) -> int: return int(value / SECS_MAX) % SECS_MAX
 ## Converts a linear value to the required amount to format it as seconds.

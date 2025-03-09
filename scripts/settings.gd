@@ -16,6 +16,8 @@ const IGNORED_PROPERTIES: PackedStringArray = ["resource_local_to_scene", "resou
 ## Alternates between in-game scroll directions.
 @export_enum("Up:0","Down:1")
 var scroll: int = 1
+## Prevents inputs from punishing you if you press keys when there's no notes to hit.
+@export var ghost_tapping: bool = true
 ## Locks framerate to your monitor's refresh rate[br]
 ## May help reducing screen tearing.
 @export var vsync: bool = false:
@@ -33,6 +35,8 @@ var scroll: int = 1
 @export var hud_bump_intensity: int = 100:
 	set(new_bi):
 		hud_bump_intensity = clampi(new_bi, 0, 100)
+## Changes the UI elements and dialogue language.
+@export var language: String = "mk"
 
 
 func _init(use_defaults: bool = false) -> void:

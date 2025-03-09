@@ -3,10 +3,10 @@ class_name SongTimeChange
 extends Resource
 @export var bpm: float = 100.0
 @export var time: float = 0.0
-static func make(time: float = 0.0, bpm: float = 100.0) -> SongTimeChange:
+static func make(_time: float = 0.0, _bpm: float = 100.0) -> SongTimeChange:
 	var change: SongTimeChange = SongTimeChange.new()
-	change.bpm = bpm
-	change.time = time
+	change.bpm = _bpm
+	change.time = _time
 	return change
 func calculate_beat() -> float:
 	return (time * bpm) / 60.0

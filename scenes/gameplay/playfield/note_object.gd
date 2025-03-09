@@ -8,11 +8,6 @@
 class_name Note
 extends Node2D
 
-enum DeletionEventID {
-	DIE = 0,
-	HIT = 1,
-}
-
 ## Default Directions.
 const COLORS: PackedStringArray = ["purple","blue","green","red"]
 
@@ -31,7 +26,13 @@ static func get_scroll_as_vector(scroll: int) -> Vector2:
 ## This is for the notefield that the note is targetting.
 var note_field: NoteField
 ## Data used mainly for hold sizes and whatnot.
-var data: NoteData
+var data: NoteData:
+	set(new_data):
+		time = new_data.time
+		column = new_data.column
+		length = new_data.length
+		kind = new_data.kind
+		side = new_data.side
 ## (Current) Hold Size, not to be confused with [code]data.length[/code]
 var hold_size: float = 0.0
 ## Hold note body, gets attached if [code]$"clip_rect/hold_body"[/code]
@@ -42,15 +43,30 @@ var hold_body: TextureRect
 var hold_tail: Node2D
 ## Control Node for hiding offscreen hold notes.
 var clip_rect: Control
+
+## Note Spawn Time (in seconds).
+var time: float = -1.0
+## Note Column/Direction.
+var column: int = -1
+## Note Player ID/Side.[br]0 = Enemy, 1 = Player, etc...
+var side: int = -1
+## Note Type/Kind, if unspecified or non-existant,
+## The default note type will be used instead.
+var kind: StringName
+## Note Length, spawns a tail in the note if specified.
+var length: float = -1.0
+
 # Input stuff
 var was_hit: bool = false
 var was_missed: bool = false
-var late_hitbox: float = 1.0
-var early_hitbox: float = 1.0
+#var late_hitbox: float = 1.0
+#var early_hitbox: float = 1.0
+var hit_time: float = 0.0
 # FOR HOLDS
 var dropped: bool = false
 var hold_timer: float = 0.0
 var _stupid_visual_bug: bool = false
+var allowed_to_hide: bool = true
 # VISUALS
 var scroll_mult: Vector2 = -Vector2.ONE
 var moving: bool = true
@@ -59,22 +75,30 @@ func hide_all() -> void: queue_free()
 func show_all() -> void: show()
 
 func _ready() -> void:
+	hold_size = length
 	scroll_mult = Note.get_scroll_as_vector(Global.settings.scroll)
-	if data:
-		hold_size = data.length
 	if has_node("clip_rect"):
 		clip_rect = get_node("clip_rect")
 		if has_node("clip_rect/hold_body"): hold_body = get_node("clip_rect/hold_body")
 		if has_node("clip_rect/hold_tail"): hold_tail = get_node("clip_rect/hold_tail")
 		clip_rect.scale *= -scroll_mult
 
+
+func scroll_ahead() -> void:
+	if not note_field or column == -1:
+		return
+	var strum_speed: float = note_field.speed * note_field.get_receptor(column).speed
+	position.y = Note.DISTANCE * (Conductor.playhead - time) * strum_speed / absf(scale.y)
+	position.y *= scroll_mult.y
+	position.y += note_field.global_position.y
+
 func update_hold(delta: float) -> void:
-	#moving = false
-	#if _stupid_visual_bug:
-	#	hold_size += (data.time - Conductor.time) / absf(clip_rect.scale.y)
-	#	_stupid_visual_bug = false
-	hold_size -= delta #/ absf(clip_rect.scale.y)
-	#display_hold(hold_size)
+	moving = false
+	if _stupid_visual_bug:
+		hold_size += hit_time / absf(clip_rect.scale.y)
+		_stupid_visual_bug = false
+	hold_size -= delta / absf(clip_rect.scale.y)
+	display_hold(hold_size)
 	if hold_size <= 0.0:
 		hide_all()
 
@@ -89,10 +113,10 @@ func reload(_data: NoteData) -> void:
 ## Use this function for implementing hold note visuals.[br]
 ## Leave empty if you want your note type to not have holds.
 func display_hold(size: float = 0.0, speed: float = 0.0 if data else 1.0) -> void:
-	if not data or not hold_body or not clip_rect:
+	if column != -1 and not hold_body or not clip_rect:
 		return
 	if speed == 0.0:
-		speed = note_field.speed * note_field.get_receptor(data.column if data else 0).speed if note_field else 1.0
+		speed = note_field.speed * note_field.get_receptor(column).speed if note_field else 1.0
 	# general implementation, should work for everything???
 	hold_body.size.y = (Note.DISTANCE_HOLD * speed) * size
 	hold_body.size.x = hold_body.texture.get_width()
@@ -102,7 +126,8 @@ func display_hold(size: float = 0.0, speed: float = 0.0 if data else 1.0) -> voi
 func display_splash() -> Node2D:
 	return null
 
-## Checks if the note is in range to be hit
+## Checks if the note is in range to be hitp
 func is_hittable(hit_window: float = 0.18) -> bool:
-	return data.time > Conductor.playhead - (hit_window * late_hitbox) \
-		and data.time < Conductor.playhead + (hit_window * early_hitbox)
+	#const diff: float = data.time - Conductor.playhead
+	#return absf(diff) <= (hit_window * (early_hitbox if diff < 0 else late_hitbox))
+	return absf(Conductor.playhead - time) <= hit_window and not was_hit and not was_missed

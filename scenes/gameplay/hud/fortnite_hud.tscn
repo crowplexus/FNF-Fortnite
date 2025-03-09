@@ -1,22 +1,23 @@
-[gd_scene load_steps=13 format=3 uid="uid://bjkg052ui3mnl"]
+[gd_scene load_steps=14 format=3 uid="uid://bjkg052ui3mnl"]
 
 [ext_resource type="Script" uid="uid://bqen71fvkle87" path="res://scenes/gameplay/hud/fortnite_hud.gd" id="1_vvh1u"]
 [ext_resource type="StyleBox" uid="uid://dhwynnq1ji6ou" path="res://scenes/gameplay/hud/styleboxes/fortnite_bar_bg.tres" id="3_epiwg"]
 [ext_resource type="StyleBox" uid="uid://bdag5e631yhvt" path="res://scenes/gameplay/hud/styleboxes/health_bar_right.tres" id="3_vvh1u"]
 [ext_resource type="Script" uid="uid://dxoh2eni26dvh" path="res://scenes/gameplay/hud/combo_group.gd" id="6_dqqga"]
 [ext_resource type="PackedScene" uid="uid://d0a6dlj2togbt" path="res://scenes/gameplay/playfield/strum/4k.tscn" id="7_oimmk"]
+[ext_resource type="FontFile" uid="uid://ddfumfkyfy17s" path="res://assets/ui/fonts/vcr.ttf" id="8_vvh1u"]
 [ext_resource type="Script" uid="uid://cfnk73c6iyf2s" path="res://scenes/gameplay/playfield/player/botplay.gd" id="8_wmrok"]
 [ext_resource type="Script" uid="uid://dp7ul3erh1ciu" path="res://scenes/gameplay/playfield/player/player.gd" id="9_cskj3"]
 [ext_resource type="Texture2D" uid="uid://cw3h68ylrq7fy" path="res://assets/ui/countdown/prepare.png" id="10_ojldb"]
 [ext_resource type="AudioStream" uid="uid://cs4y7h8cnhhwm" path="res://assets/sounds/countdown/funkin/3.ogg" id="11_x72vp"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_3l1f0"]
-font_size = 14
+font = ExtResource("8_vvh1u")
 outline_size = 6
 outline_color = Color(0, 0, 0, 1)
 
 [sub_resource type="LabelSettings" id="LabelSettings_it28e"]
-font_size = 15
+font = ExtResource("8_vvh1u")
 outline_size = 6
 outline_color = Color(0, 0, 0, 1)
 
@@ -131,11 +132,11 @@ offset_right = -4.39999
 offset_bottom = 24.71
 grow_horizontal = 2
 grow_vertical = 2
-text = "Score: 0 | Accuracy: 0.0% | Misses: 0 [Noplay]"
+text = "Score: 0 | Combo: 0 | Breaks: 0"
 label_settings = SubResource("LabelSettings_it28e")
 horizontal_alignment = 1
 
-[node name="time_bar" type="ProgressBar" parent="."]
+[node name="accuracy_bar" type="ProgressBar" parent="."]
 unique_name_in_owner = true
 texture_filter = 1
 layout_mode = 1
@@ -155,7 +156,7 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_vvh1u")
 value = 50.0
 show_percentage = false
 
-[node name="time_progress" type="Label" parent="time_bar"]
+[node name="accuracy_progress" type="Label" parent="accuracy_bar"]
 clip_contents = true
 layout_mode = 1
 anchors_preset = -1
@@ -168,7 +169,7 @@ offset_right = 170.0
 offset_bottom = 6.0
 grow_horizontal = 2
 grow_vertical = 2
-text = "0:00.000"
+text = "0.00%"
 label_settings = SubResource("LabelSettings_3l1f0")
 
 [node name="countdown" type="Control" parent="."]

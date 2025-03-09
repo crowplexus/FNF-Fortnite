@@ -88,6 +88,7 @@ note_right={
 
 [internationalization]
 
+locale/translations=PackedStringArray("res://assets/ui/translations/game.en.translation", "res://assets/ui/translations/game.mk.translation", "res://assets/ui/translations/game.pt.translation")
 locale/locale_filter_mode=1
 
 [rendering]

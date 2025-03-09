@@ -45,6 +45,6 @@ func dance(forced: bool = false, reversed: bool = false, speed: float = 1.0) -> 
 	play_animation(dance_moves[_last_dance], forced, reversed, speed)
 	_last_dance = wrapi(_last_dance + 1, 0, dance_moves.size())
 
-func sing(direction: int, forced: bool = false, reversed: bool = false, speed: float = 1.0) -> void:
-	play_animation(sing_moves[direction % sing_moves.size()], forced, reversed, speed)
+func sing(direction: int, forced: bool = false, suffix: String = "", reversed: bool = false, speed: float = 1.0) -> void:
+	play_animation(sing_moves[direction % sing_moves.size()] + suffix, forced, reversed, speed)
 	idle_cooldown = 1.0

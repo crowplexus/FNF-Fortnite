@@ -1,0 +1,5 @@
+key,en,pt,mk
+score,Score,Pontos,Поен
+misses,Misses,Erros,Промаши
+score_text,"Score: %s | Combo: %s | Breaks: %s","Pontos: %s | Combo: %s | Quebras: %s","Поен: %s | Комбо: %s | Промаши: %s"
+score_text_nomiss,"Score: %s | Combo: %s","Pontos: %s | Combo: %s","Поен: %s | Комбо: %s%"

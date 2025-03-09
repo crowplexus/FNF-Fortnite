@@ -29,9 +29,10 @@ func update_hold(delta: float) -> void:
 	if hold_tail: hold_tail.position.y = hold_body.position.y + hold_body.size.y + 26
 
 func display_splash() -> Node2D:
-	if not note_field: return null
+	if not note_field or column == -1:
+		return null
 	# TODO: change *all* of this
-	var receptor: = note_field.get_child(data.column)
+	var receptor: = note_field.get_child(column)
 	var dip: AnimatedSprite2D = null
 	for child: Node in receptor.get_children():
 		if child.name.begins_with("splash_"):
@@ -46,5 +47,5 @@ func display_splash() -> Node2D:
 		receptor.add_child(dip)
 	dip.frame = 0
 	dip.show()
-	dip.play("note impact %s %s" %  [ randi_range(1, 2), Note.COLORS[data.column] ])
+	dip.play("note impact %s %s" %  [ randi_range(1, 2), Note.COLORS[column] ])
 	return dip

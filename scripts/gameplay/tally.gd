@@ -40,7 +40,7 @@ var accuracy_points: float = 0.0
 ## Counts how many of (tier judgement) you've hit.
 var tiers_scored: Array[int] = [0, 0, 0, 0, 0]
 
-## Increases the score by the amount provided.
+## Increases the score by the amount provided (in ms).
 func increase_score(amount: float) -> void:
 	score += floori(MAX_SCORE - absf(amount))
 
@@ -56,8 +56,9 @@ func increase_combo(amount: int) -> void:
 
 ## Increases the combo breaks counter (if possible).
 func break_combo() -> void:
-	if combo > 0:
-		breaks += 1
+	#if combo > 0:
+		# TODO: add this.
+		#breaks += 1
 	combo = 0
 
 ## Updates the accuracy currently displayed.
@@ -75,6 +76,24 @@ func update_tier_score(tier: int) -> void:
 	if tier > tiers_scored.size():
 		tiers_scored.append(0)
 	tiers_scored[tier] += 1
+
+## Calculates the ratio of all tiers (except the highest) up to all the other judgements.[br]
+## Returns 0.0 if Global.settings.use_epics is disabled.
+func calculate_epic_attack() -> float:
+	if not Global.settings.use_epics:
+		# there's no reason for this to be calculate cus there's only 4 (or less) judgements
+		return 0.0
+	# Sick, Good, Bad, Shit.
+	return self.tiers_scored[1] + self.tiers_scored[2] + self.tiers_scored[3] + self.tiers_scored[4]
+
+## Calculates the ratio of Tier 1s (Sicks) up to all the other judgements.[br]
+## Returns 0.0 if Global.settings.use_epics is disabled.
+func calculate_sick_attack() -> float:
+	if not Global.settings.use_epics:
+		# there's no reason for this to be calculate cus there's only 4 (or less) judgements
+		return 0.0
+	# Good, Bad, Shit.
+	return self.tiers_scored[2] + self.tiers_scored[3] + self.tiers_scored[4]
 
 ## Calculate the accuracy points for a single hit (in milliseconds).
 static func calc_max_points(tier: int, time: float) -> float:
@@ -105,11 +124,16 @@ static func judge_time(ms: float) -> int:
 ## Hitting only tier 1s results in "Perf"[br]
 ## Hitting at least 1 tier 2 results in "Great"[br]
 ## Hitting at least 1 tier 3 results in "Pass" 
-static func get_tier_grade(tiers_scored: Array[int], misses: int = 0) -> String:
+func get_tier_grade(scores: Array[int] = []) -> String:
+	if not scores or scores.is_empty():
+		scores = self.tiers_scored
 	var fc_tier: String = ""
-	if tiers_scored.size() >= 3: # 3 tiers or more
-		if tiers_scored[3] == 0 and misses == 0:
-			if tiers_scored[0] > 0: fc_tier = "Perf" # Epic
-			if tiers_scored[1] > 0: fc_tier = "Great" # Sick
-			if tiers_scored[2] > 0: fc_tier = "Piss" if randf_range(0, 100) < 0.5 else "Pass" # Good, 1/500 chance of saying Piss instead
+	#if notes_hit_count == 0:
+	#	fc_tier = "Noplay"
+	#	return fc_tier
+	if scores.size() >= 3: # 3 tiers or more
+		if scores[3] == 0 and (misses + breaks) == 0:
+			if scores[0] > 0: fc_tier = "PFC" #"Perf" # Epic
+			if scores[1] > 0: fc_tier = "GFC" #"Great" # Sick
+			if scores[2] > 0: fc_tier = "FC" #"Piss" if randf_range(0, 100) < 0.5 else "Pass" # Good, 1/500 chance of saying Piss instead
 	return fc_tier

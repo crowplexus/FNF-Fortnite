@@ -4,7 +4,7 @@
 [ext_resource type="StyleBox" uid="uid://bb871j4np30b4" path="res://scenes/gameplay/hud/styleboxes/health_bar_left.tres" id="2_os6l6"]
 [ext_resource type="StyleBox" uid="uid://bdag5e631yhvt" path="res://scenes/gameplay/hud/styleboxes/health_bar_right.tres" id="3_cjywq"]
 [ext_resource type="Texture2D" uid="uid://d3x8spahvh1je" path="res://assets/game/characters/face/icon.png" id="4_bkydb"]
-[ext_resource type="FontFile" uid="uid://eqlodoqk2jjg" path="res://assets/ui/fonts/vcr.ttf" id="5_bpiwt"]
+[ext_resource type="FontFile" uid="uid://ddfumfkyfy17s" path="res://assets/ui/fonts/vcr.ttf" id="5_bpiwt"]
 [ext_resource type="Script" uid="uid://dxoh2eni26dvh" path="res://scenes/gameplay/hud/combo_group.gd" id="6_w8rm7"]
 [ext_resource type="PackedScene" uid="uid://d0a6dlj2togbt" path="res://scenes/gameplay/playfield/strum/4k.tscn" id="7_1ey6q"]
 [ext_resource type="Script" uid="uid://cfnk73c6iyf2s" path="res://scenes/gameplay/playfield/player/botplay.gd" id="8_ix870"]

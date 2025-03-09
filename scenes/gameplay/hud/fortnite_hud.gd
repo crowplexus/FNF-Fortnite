@@ -2,12 +2,12 @@ extends TemplateHUD
 
 @onready var score_text: Label = $"health_bar/score_text"
 @onready var health_text: Label = $"health_bar/health_percent"
-@onready var time_text: Label = $"time_bar/time_progress"
+@onready var accuracy_text: Label = $"accuracy_bar/accuracy_progress"
 
 @onready var combo_group: Control = $"combo_group"
 @onready var note_fields: Control = $"note_fields"
 @onready var health_bar: ProgressBar = $"%health_bar"
-@onready var shield_bar: ProgressBar = $"%time_bar"
+@onready var shield_bar: ProgressBar = $"%accuracy_bar" # this is accuracy not time btw
 
 @onready var countdown: Control = $"countdown"
 @onready var countdown_sprite: Sprite2D = $"countdown/sprite"
@@ -27,10 +27,6 @@ func _ready() -> void:
 		game = get_tree().current_scene
 	_on_settings_changed()
 	countdown.hide()
-
-func _process(_delta: float) -> void:
-	if Conductor.time >= 0.0:
-		time_text.text = Global.format_to_time(Conductor.time, true)
 
 func _on_settings_changed() -> void:
 	match Global.settings.scroll:
@@ -97,13 +93,18 @@ func countdown_progress() -> void:
 	_countdown_iteration += 1
 
 func update_score_text() -> void:
-	var fc_string: String = Tally.get_tier_grade(game.tally.tiers_scored, game.tally.misses + game.tally.breaks)
-	score_text.text = "Score: %s | Accuracy: %s%% | Misses: %s" % [
-		0 if not game or not game.tally else game.tally.score,
-		0.0 if not game or not game.tally else snappedf(game.tally.accuracy, 0.001),
-		0 if not game or not game.tally else game.tally.misses,
+	var tally: bool = game and game.tally
+	var total_misses: int = game.tally.misses# + game.tally.breaks
+	var fc_string: String = game.tally.get_tier_grade(game.tally.tiers_scored)
+	score_text.text = tr("score_text", &"gameplay") % [
+		(game.tally.score if tally else 0),
+		(game.tally.combo if tally else 0),
+		(fc_string if not fc_string.is_empty() else total_misses if tally else 0),
 	]
-	if not fc_string.is_empty(): score_text.text += " [%s]" % fc_string
+	if tally:
+		shield_bar.value = snappedf(game.tally.accuracy, 0.001)
+		accuracy_text.text = "%s%%" % [ snappedf(game.tally.accuracy, 0.001) if tally else 0.0 ]
+	
 
 func display_judgement(image: Texture2D) -> void:
 	combo_group.display_judgement(image)

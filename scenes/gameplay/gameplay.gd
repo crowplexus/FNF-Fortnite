@@ -74,13 +74,14 @@ func _exit_tree() -> void:
 func _process(delta: float) -> void:
 	if get_tree().paused: return
 	if starting:
-		Conductor.update(Conductor.time + delta)
 		if Conductor.time >= 0.0:
 			Global.update_discord_timestamps(0.0, Conductor.length)
 			if music: music.play(0.0)
 			starting = false
-	elif music and music.playing:
+	if music and music.playing:
 		Conductor.update(music.get_playback_position() + AudioServer.get_time_since_last_mix())
+	else: # if all else fails update the conductor anyway
+		Conductor.update(Conductor.time + delta)
 	if not starting and should_process_events:
 		process_timed_events()
 	# hud bumping #
@@ -137,19 +138,11 @@ func load_streams() -> void:
 
 
 func init_note_spawner() -> void:
-	note_group.max_hit_window = max_hit_window
-	note_group.connect("on_note_spawned", func(data: NoteData, note: Node2D) -> void:
+	note_group.on_note_spawned.connect(func(data: NoteData, note: Node2D) -> void:
 		var receptor: = note_fields[data.side].get_child(data.column)
 		note.global_position = receptor.global_position
 		note.scale = note_fields[data.side].scale
 		note.note_field = note_fields[data.side]
-	)
-	note_group.connect("on_note_deleted", func(type: Note.DeletionEventID, note: Note) -> void:
-		if type == Note.DeletionEventID.DIE and note.note_field == player_strums:
-			on_note_miss(note)
-		if type == Note.DeletionEventID.HIT:
-			note.note_field.play_animation(note.data.column, NoteField.RepState.CONFIRM)
-			note.note_field.set_reset_timer(note.data.column, 0.3 * Conductor.crotchet)
 	)
 	if chart and not chart.notes.is_empty():
 		note_group.note_list = chart.notes.duplicate(true)
@@ -159,19 +152,19 @@ func init_note_spawner() -> void:
 @onready var fucker_temp: Actor2D = $"bf"
 
 func on_note_hit(note: Note) -> void:
-	if note.was_hit: return
+	if note.was_hit or note.column == -1:
+		return
 	note.was_hit = true
-	var abs_diff: float = absf(note.data.time - Conductor.playhead)
+	var abs_diff: float = absf(note.time - Conductor.playhead)
 	var judged_tier: int = Tally.judge_time(abs_diff * 1000.0)
 	var judgement: Judgement = judgements.list[judged_tier]
 	if note.forced_splash or judgement.splash_type != Judgement.SplashType.DISABLED:
 		note.display_splash()
-	fucker_temp.sing(note.data.column, true)
+	fucker_temp.sing(note.column, true, "")
 	# Scoring Stuff
 	tally.increase_score(abs_diff * 1000.0)
 	if judgement.combo_break:
-		tally.combo = 0
-		tally.breaks += 1
+		tally.break_combo()
 	tally.increase_combo(1)
 	tally.update_accuracy(abs_diff * 1000.0)
 	tally.update_tier_score(judged_tier)
@@ -181,13 +174,13 @@ func on_note_hit(note: Note) -> void:
 	hud.update_score_text()
 
 
-func on_note_miss(note: Note) -> void:
-	if note.was_missed: return
+func on_note_miss(note: Note, idx: int = -1) -> void:
+	if note and note.was_missed or idx == -1: return
+	fucker_temp.sing(idx, true, "miss")
 	tally.break_combo()
-	tally.increase_misses(1)
 	hud.update_score_text()
 
 
 func on_beat_hit(beat: float) -> void:
-	if floori(beat) % 4 == 0:
+	if fmod(beat, 4.0) == 0:
 		hud_layer.scale += Vector2(hud.get_bump_scale(), hud.get_bump_scale())

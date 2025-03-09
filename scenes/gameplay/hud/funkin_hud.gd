@@ -107,8 +107,9 @@ func countdown_progress() -> void:
 	_countdown_iteration += 1
 
 func update_score_text() -> void:
-	score_text.text = "Score: %s" % (0 if not game or not game.tally else game.tally.score)
-	misses_text.text = "Misses: %s" % (0 if not game or not game.tally else game.tally.misses)
+	var tally: bool = game and game.tally
+	score_text.text  = tr("score", &"gameplay") + ": %s" % (0 if not tally else game.tally.score)
+	misses_text.text = tr("misses", &"gameplay") + ": %s" % (0 if not tally else game.tally.misses)
 
 func display_judgement(image: Texture2D) -> void:
 	combo_group.display_judgement(image)
@@ -136,7 +137,7 @@ func display_combo(combo: int = -1) -> void:
 #		_ when accuracy <= -1: return "FAIL" # F, kinda, whatever
 #	return "N/A"
 
-func on_beat_hit(beat: float) -> void:
+func on_beat_hit(_beat: float) -> void:
 	#if fmod(beat, 2.0) == 0.0:
 	if icon_p1: icon_p1.scale = default_icon_p1_scale * 1.2
 	if icon_p2: icon_p2.scale = default_icon_p2_scale * 1.2

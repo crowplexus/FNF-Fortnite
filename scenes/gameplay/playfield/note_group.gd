@@ -3,12 +3,11 @@ extends Node
 const TEMPLATE_NOTE: PackedScene = preload("res://scenes/gameplay/playfield/notes/normal_note.tscn")
 
 signal on_note_spawned(data: NoteData, note: Note)
-signal on_note_deleted(type: Note.DeletionEventID, note: Note)
+signal on_note_deleted(note: Note)
 
 @export var active: bool = true
 var colours: Array[StringName] = [ &"purple", &"blue", &"green", &"red", ]
 var note_list: Array[NoteData] = []
-var max_hit_window: float = 180.0
 var list_position: int = 0
 
 func _ready() -> void:
@@ -36,30 +35,26 @@ func spawning_complete() -> bool:
 func move_present_nodes() -> void:
 	for i: int in get_child_count():
 		var node: Note = get_child(i)
-		if not node.visible :
+		if not node.visible:
 			continue
-		# TODO: move to note class?
-		var data: NoteData = NoteData.EMPTY if not node.data else node.data		
-		if node.moving: # NOTE: node is the note itself
-			var strum_speed: float = 1.0
-			if node and node.note_field: # trying to add SVs...
-				var field: NoteField = node.note_field
-				strum_speed = field.speed * field.get_receptor(data.column).speed
-			node.position.y = Note.DISTANCE * (Conductor.playhead - data.time) * strum_speed / absf(node.scale.y)
-			node.position.y *= node.scroll_mult.y
-			node.position.y += node.note_field.global_position.y
-		# must be done no matter what to prevent orphan notes
-		if (Conductor.playhead - data.time) > 0.75:
-			if not node.was_hit: node.was_missed = true
-			on_note_deleted.emit(Note.DeletionEventID.DIE, node)
+		# NOTE: node is the note itself
+		if node.moving: node.scroll_ahead()
+		var miss_delay: float = 0.75 # default for botplay
+		if node.note_field and node.note_field.player and node.note_field.player is Player:
+			miss_delay = 0.3
+		# preventing orphan nodes hopefully with this.
+		if node.allowed_to_hide and (Conductor.playhead - node.time) > miss_delay:
+			if miss_delay == 0.3 and not node.was_hit:
+				node.note_field.player.miss_note.emit(node, node.column)
+				node.was_missed = true
 			node.hide_all()
+			on_note_deleted.emit(node)
 
 
 func try_spawning() -> void:
 	while list_position < note_list.size():
 		var note_data: NoteData = note_list[list_position]
 		if absf(note_data.time - Conductor.time) > 0.8: break
-
 		var new_note: Note = get_note()
 		new_note.data = note_data
 		new_note.reload(note_data)
