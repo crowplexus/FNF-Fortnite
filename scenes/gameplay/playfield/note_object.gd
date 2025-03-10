@@ -10,11 +10,12 @@ extends Node2D
 
 ## Default Directions.
 const COLORS: PackedStringArray = ["purple","blue","green","red"]
-
 ## Default Note Distance (in pixels)
 const DISTANCE: float = 450.0
 ## Default Hold Distance (in pixels)
 const DISTANCE_HOLD: float = 2000.0
+## Arrow Size (in pixels), for test purposes.
+const ARROW_SIZE: float = 64.0
 
 static func get_scroll_as_vector(scroll: int) -> Vector2:
 	match scroll:
@@ -75,7 +76,6 @@ func hide_all() -> void: queue_free()
 func show_all() -> void: show()
 
 func _ready() -> void:
-	hold_size = length
 	scroll_mult = Note.get_scroll_as_vector(Global.settings.scroll)
 	if has_node("clip_rect"):
 		clip_rect = get_node("clip_rect")
@@ -87,13 +87,16 @@ func _ready() -> void:
 func scroll_ahead() -> void:
 	if not note_field or column == -1:
 		return
-	var strum_speed: float = note_field.speed * note_field.get_receptor(column).speed
-	position.y = Note.DISTANCE * (Conductor.playhead - time) * strum_speed / absf(scale.y)
-	position.y *= scroll_mult.y
-	position.y += note_field.global_position.y
+	# i stole this shit from OpenITG https://github.com/openitg/openitg/blob/f2c129fe65c65e4a9b3a691ff35e7717b4e8de51/src/ArrowEffects.cpp#L42
+	var strum_speed: float = (note_field.speed * note_field.get_receptor(column % note_field.get_child_count()).speed)
+	var beat_speed: float = (strum_speed * 10.0)#Conductor.bpm
+	var secs_until_step: float = time - Conductor.playhead
+	var next_y: float = secs_until_step * beat_speed * Note.ARROW_SIZE
+	position.y = note_field.global_position.y + next_y * -scroll_mult.y #/ absf(scale.y)
 
 func update_hold(delta: float) -> void:
 	moving = false
+	position.y = note_field.global_position.y
 	if _stupid_visual_bug:
 		hold_size += hit_time / absf(clip_rect.scale.y)
 		_stupid_visual_bug = false
@@ -104,7 +107,8 @@ func update_hold(delta: float) -> void:
 
 ## Use this function to initialise the note itself and related properties[br]
 ## Called whenever a note is spawned, remember to also call super(data)
-func reload(_data: NoteData) -> void:
+func reload(p_data: NoteData) -> void:
+	data = p_data
 	_stupid_visual_bug = false
 	was_missed = false
 	was_hit = false

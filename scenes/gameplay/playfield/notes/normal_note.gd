@@ -10,13 +10,13 @@ func show_all() -> void:
 	if clip_rect: clip_rect.visible = is_hold
 	super()
 
-func reload(le_data: NoteData) -> void:
-	super(le_data)
-	hold_size = le_data.length
-	player.play(str(le_data.column))
+func reload(p_data: NoteData) -> void:
+	super(p_data)
+	hold_size = length
+	player.play(str(column))
 	if not arrow.visible: arrow.show()
 	if clip_rect and hold_size > 0.0 and hold_body: # damn
-		var color: = Note.COLORS[le_data.column]
+		var color: = Note.COLORS[column % Note.COLORS.size()]
 		hold_body.texture = arrow.sprite_frames.get_frame_texture("%s hold piece" % color, 0)
 		if hold_tail: hold_tail.texture = arrow.sprite_frames.get_frame_texture("%s hold tail" % color, 0)
 		display_hold(hold_size)
@@ -24,16 +24,16 @@ func reload(le_data: NoteData) -> void:
 			hold_tail.position.y = hold_body.position.y + hold_body.size.y
 
 func update_hold(delta: float) -> void:
-	super(delta)
 	if arrow.visible: arrow.hide()
-	if hold_tail: hold_tail.position.y = hold_body.position.y + hold_body.size.y + 26
+	super(delta)
+	if hold_tail: hold_tail.position.y = hold_body.position.y + hold_body.size.y + 30
 
 func display_splash() -> Node2D:
 	if not note_field or column == -1:
 		return null
 	# TODO: change *all* of this
-	var receptor: = note_field.get_child(column)
 	var dip: AnimatedSprite2D = null
+	var receptor: = note_field.get_child(column)
 	for child: Node in receptor.get_children():
 		if child.name.begins_with("splash_"):
 			if child.visible: continue

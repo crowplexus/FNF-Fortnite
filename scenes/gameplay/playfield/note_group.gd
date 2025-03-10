@@ -56,13 +56,10 @@ func try_spawning() -> void:
 		var note_data: NoteData = note_list[list_position]
 		if absf(note_data.time - Conductor.time) > 0.8: break
 		var new_note: Note = get_note()
-		new_note.data = note_data
 		new_note.reload(note_data)
 		on_note_spawned.emit(note_data, new_note)
-		new_note.show_all()
 		list_position += 1#= clampi(list_position + 1, 0, note_list.size())
 		#print_debug("spawned at ", Conductor.time)
-		#print(list_position)
 
 
 func get_note() -> Node:

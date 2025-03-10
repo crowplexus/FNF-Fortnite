@@ -18,6 +18,7 @@ static var chart: BaseChart
 @onready var note_group: Node = $"hud_layer/note_group"
 @onready var hud_layer: CanvasLayer = $"hud_layer"
 @onready var hud: TemplateHUD = $"hud_layer/hud"
+@onready var fucker_temp: Actor2D = $"bf"
 
 var assets: ChartAssets
 var game_mode: PlayMode = PlayMode.FREEPLAY
@@ -27,12 +28,12 @@ var timed_events: Array[TimedEvent] = []
 var event_position: int = 0
 var should_process_events: bool = true
 
-var max_hit_window: float = Tally.TIMINGS.back()
+var max_hit_window: float = Tally.get_max_hit_window_ms()
 var starting: bool = true
 
 func _ready() -> void:
 	if not tally: tally = Tally.new()
-	print_debug("max hit window is ", max_hit_window)
+	print_debug("max hit window is ", max_hit_window, " (", max_hit_window * 1000.0, "ms)")
 	if chart.assets:
 		assets = chart.assets
 		load_streams()
@@ -149,8 +150,6 @@ func init_note_spawner() -> void:
 		if Conductor.length < 0.0: Conductor.length = chart.notes.back().time
 
 
-@onready var fucker_temp: Actor2D = $"bf"
-
 func on_note_hit(note: Note) -> void:
 	if note.was_hit or note.column == -1:
 		return
@@ -160,7 +159,7 @@ func on_note_hit(note: Note) -> void:
 	var judgement: Judgement = judgements.list[judged_tier]
 	if note.forced_splash or judgement.splash_type != Judgement.SplashType.DISABLED:
 		note.display_splash()
-	fucker_temp.sing(note.column, true, "")
+	fucker_temp.sing(note.column, true)
 	# Scoring Stuff
 	tally.increase_score(abs_diff * 1000.0)
 	if judgement.combo_break:

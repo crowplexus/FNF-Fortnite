@@ -95,6 +95,10 @@ func calculate_sick_attack() -> float:
 	# Good, Bad, Shit.
 	return self.tiers_scored[2] + self.tiers_scored[3] + self.tiers_scored[4]
 
+## Grabs the max hit window in milliseconds.
+static func get_max_hit_window_ms() -> float:
+	return TIMINGS.back() * 0.001
+
 ## Calculate the accuracy points for a single hit (in milliseconds).
 static func calc_max_points(tier: int, time: float) -> float:
 	if tier == MISS_TIER: return MISS_POINTS
@@ -124,13 +128,12 @@ static func judge_time(ms: float) -> int:
 ## Hitting only tier 1s results in "Perf"[br]
 ## Hitting at least 1 tier 2 results in "Great"[br]
 ## Hitting at least 1 tier 3 results in "Pass" 
-func get_tier_grade(scores: Array[int] = []) -> String:
-	if not scores or scores.is_empty():
-		scores = self.tiers_scored
+func get_tier_grade() -> String:
 	var fc_tier: String = ""
 	#if notes_hit_count == 0:
 	#	fc_tier = "Noplay"
 	#	return fc_tier
+	var scores: = self.tiers_scored
 	if scores.size() >= 3: # 3 tiers or more
 		if scores[3] == 0 and (misses + breaks) == 0:
 			if scores[0] > 0: fc_tier = "PFC" #"Perf" # Epic

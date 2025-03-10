@@ -4,7 +4,7 @@ extends Resource
 const IGNORED_PROPERTIES: PackedStringArray = ["resource_local_to_scene", "resource_scene_unique_id", "resource_name", "resource_path", "script"]
 
 ## Defines the Master Volume of the game.
-@export var master_volume: int = 50:
+@export var master_volume: int = 20:
 	set(new_mv):
 		master_volume = clampi(new_mv, 0, 100)
 		AudioServer.set_bus_volume_db(0, linear_to_db(master_volume * 0.01))
@@ -15,7 +15,7 @@ const IGNORED_PROPERTIES: PackedStringArray = ["resource_local_to_scene", "resou
 		master_mute = new_mute
 ## Alternates between in-game scroll directions.
 @export_enum("Up:0","Down:1")
-var scroll: int = 1
+var scroll: int = 0
 ## Prevents inputs from punishing you if you press keys when there's no notes to hit.
 @export var ghost_tapping: bool = true
 ## Locks framerate to your monitor's refresh rate[br]

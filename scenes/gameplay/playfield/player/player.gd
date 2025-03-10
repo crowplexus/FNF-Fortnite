@@ -54,29 +54,31 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		# two methods for inputs I'm just testing this shit
 		##var hit_note: Note
 		##for n: Note in game.note_group.get_children():
-		##	if n.column == idx and n.side == note_field.get_index() and n.is_hittable(game.max_hit_window * 0.001) not n.was_missed:
+		##	if n.column == idx and n.side == note_field.get_index() and n.is_hittable(game.max_hit_window):
 		##			hit_note = n
 		##			break
 		var notes: Array = game.note_group.get_children().filter(func(n: Note) -> bool:
-			return n.column == idx and n.side == note_field.get_index() and n.is_hittable(game.max_hit_window * 0.001))
+			return idx == n.column and note_field.get_index() == n.side)
 		# TODO: fix the one bug where you hit both notes in a jack
 		if not notes.is_empty():
-			var note: Note = notes[0]
-			notes.sort_custom(func(a: Note, b: Note) -> int: return a.time - b.time)
-			hit_note.emit(note)
-			if note.was_hit:
-				note.hit_time = note.time - Conductor.playhead
-				if note.hold_size > 0.0:
-					note.hold_timer = 1.0
-					note._stupid_visual_bug = note.hit_time < 0.0
-					note.allowed_to_hide = false
-				else:
-					note.hide_all()
-				note_field.play_animation(idx, NoteField.RepState.CONFIRM)
+			notes.sort_custom(func(a: Note, b: Note) -> bool: return a.time < b.time)
+			var note: Note = notes.front()
+			if note.is_hittable(game.max_hit_window):
+				hit_note.emit(note)
+				if note.was_hit:
+					note.hit_time = note.time - Conductor.playhead
+					if note.hold_size <= 0.0:
+						note.hide_all()
+					else:
+						note.hold_timer = 1.0
+						note._stupid_visual_bug = note.hit_time < 0.0
+						note.allowed_to_hide = false
+					note_field.play_animation(idx, NoteField.RepState.CONFIRM)
 		else:
 			note_field.play_animation(idx, NoteField.RepState.PRESSED)
 			if not Global.settings.ghost_tapping:
 				miss_note.emit(null, idx)
+
 
 func get_action_id(event: InputEvent) -> int:
 	var id: int = -1

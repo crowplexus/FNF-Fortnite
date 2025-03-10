@@ -94,8 +94,8 @@ func countdown_progress() -> void:
 
 func update_score_text() -> void:
 	var tally: bool = game and game.tally
-	var total_misses: int = game.tally.misses# + game.tally.breaks
-	var fc_string: String = game.tally.get_tier_grade(game.tally.tiers_scored)
+	var total_misses: int = game.tally.misses + game.tally.breaks
+	var fc_string: String = game.tally.get_tier_grade()
 	score_text.text = tr("score_text", &"gameplay") % [
 		(game.tally.score if tally else 0),
 		(game.tally.combo if tally else 0),
