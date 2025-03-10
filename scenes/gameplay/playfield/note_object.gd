@@ -88,7 +88,7 @@ func scroll_ahead() -> void:
 	if not note_field or column == -1:
 		return
 	# i stole this shit from OpenITG https://github.com/openitg/openitg/blob/f2c129fe65c65e4a9b3a691ff35e7717b4e8de51/src/ArrowEffects.cpp#L42
-	var strum_speed: float = (note_field.speed * note_field.get_receptor(column % note_field.get_child_count()).speed)
+	var strum_speed: float = note_field.speed * note_field.get_receptor(column % note_field.get_child_count()).speed
 	var beat_speed: float = (strum_speed * 10.0)#Conductor.bpm
 	var secs_until_step: float = time - Conductor.playhead
 	var next_y: float = secs_until_step * beat_speed * Note.ARROW_SIZE

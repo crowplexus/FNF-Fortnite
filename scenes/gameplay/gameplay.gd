@@ -28,7 +28,7 @@ var timed_events: Array[TimedEvent] = []
 var event_position: int = 0
 var should_process_events: bool = true
 
-var max_hit_window: float = Tally.get_max_hit_window_ms()
+var max_hit_window: float = Tally.get_max_hit_window_secs()
 var starting: bool = true
 
 func _ready() -> void:

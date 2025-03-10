@@ -95,8 +95,8 @@ func calculate_sick_attack() -> float:
 	# Good, Bad, Shit.
 	return self.tiers_scored[2] + self.tiers_scored[3] + self.tiers_scored[4]
 
-## Grabs the max hit window in milliseconds.
-static func get_max_hit_window_ms() -> float:
+## Grabs the max hit window in seconds.
+static func get_max_hit_window_secs() -> float:
 	return TIMINGS.back() * 0.001
 
 ## Calculate the accuracy points for a single hit (in milliseconds).
