@@ -29,6 +29,7 @@ var event_position: int = 0
 var should_process_events: bool = true
 
 var max_hit_window: float = Tally.get_max_hit_window_secs()
+var is_ending: bool = false
 var starting: bool = true
 
 func _ready() -> void:
@@ -82,8 +83,13 @@ func _process(delta: float) -> void:
 		Conductor.update(music.get_playback_position() + AudioServer.get_time_since_last_mix())
 	else: # if all else fails update the conductor anyway
 		Conductor.update(Conductor.time + delta)
-	if not starting and should_process_events:
-		process_timed_events()
+	if not starting:
+		if not is_ending and Conductor.time >= Conductor.length:
+			is_ending = true
+			await get_tree().create_timer(0.5).timeout
+			exit_game()
+		if should_process_events:
+			process_timed_events()
 	# hud bumping #
 	if hud_layer.scale != Vector2.ONE:
 		hud_layer.scale = hud.get_bump_lerp_vector(hud_layer.scale, Vector2.ONE, delta)
@@ -92,8 +98,7 @@ func _process(delta: float) -> void:
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if Input.is_action_just_pressed("ui_cancel"):
-		tally = null
-		get_tree().change_scene_to_file("res://scenes/menu/freeplay_menu.tscn")
+		exit_game()
 		return
 	var action: String = player_strums.player.get_action_name(event)
 	if not action.dedent().is_empty(): fucker_temp.pause_sing = Input.is_action_pressed(action)
@@ -174,11 +179,15 @@ func on_note_hit(note: Note) -> void:
 
 func on_note_miss(note: Note, idx: int = -1) -> void:
 	if note and note.was_missed or idx == -1: return
-	fucker_temp.sing(idx, true, "miss")
 	tally.break_combo()
+	fucker_temp.sing(idx, true, "miss")
 	hud.update_score_text()
 
 
 func on_beat_hit(beat: float) -> void:
 	if fmod(beat, 4.0) == 0:
 		hud_layer.scale += Vector2(hud.get_bump_scale(), hud.get_bump_scale())
+
+func exit_game() -> void:
+	tally = null
+	get_tree().change_scene_to_file("res://scenes/menu/freeplay_menu.tscn")

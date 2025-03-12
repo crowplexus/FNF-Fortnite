@@ -99,7 +99,7 @@ func update_score_text() -> void:
 	score_text.text = tr("score_text", &"gameplay") % [
 		(game.tally.score if tally else 0),
 		(game.tally.combo if tally else 0),
-		(fc_string if not fc_string.is_empty() else total_misses if tally else "0"),
+		(fc_string if tally and not fc_string.is_empty() else total_misses if tally else 0),
 	]
 	if tally:
 		shield_bar.value = snappedf(game.tally.accuracy, 0.001)
