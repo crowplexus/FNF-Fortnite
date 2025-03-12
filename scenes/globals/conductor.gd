@@ -73,7 +73,7 @@ func update(new_time: float) -> void:
 	if playhead_copies_time: playhead = time
 
 	var ctc: SongTimeChange = Conductor.get_timed_change(time)
-	if ctc.bpm != bpm:
+	if bpm != ctc.bpm:
 		print_debug("Changed BPM from ", bpm, " to ", ctc.bpm, " at timestamp ", time)
 		bpm = ctc.bpm
 	var beat_dt: float = ctc.calculate_beat_delta(time - _prev_time)

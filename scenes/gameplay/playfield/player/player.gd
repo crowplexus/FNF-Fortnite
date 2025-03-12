@@ -41,6 +41,31 @@ func _process(delta: float) -> void:
 			note.moving = true
 			#note.hide_all()
 
+func _get_note(idx: int) -> Note:
+	var note: Note
+	# TODO: move note groups to the strumline or whatever.
+	for main: Note in game.note_group.get_children():
+		if main.column == idx and main.side == note_field.get_index():
+			var bound: bool = false
+			var n_idx: int = main.get_index()
+			if game.note_group.get_child_count() > n_idx + 1:
+				var next: Note = game.note_group.get_child(n_idx + 1)
+				bound = next.time < main.time and next.column == main.column and next.side == main.side
+				if bound: note = next
+			if not bound:
+				note = main
+			break
+	return note
+
+func _get_note_old(idx: int) -> Note:
+	var notes: Array = game.note_group.get_children().filter(func(n: Note) -> bool:
+		return idx == n.column and note_field.get_index() == n.side)
+	var note: Note
+	if not notes.is_empty():
+		notes.sort_custom(func(a: Note, b: Note) -> bool: return a.time < b.time)
+		note = notes.front()
+	return note
+
 func _unhandled_key_input(event: InputEvent) -> void:
 	var idx: int = get_action_id(event)
 	if not game is Gameplay or not note_field or force_disable_input or idx == -1:
@@ -51,30 +76,19 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		note_field.play_animation(idx, NoteField.RepState.STATIC)
 		return
 	if Input.is_action_just_pressed(action):
-		# two methods for inputs I'm just testing this shit
-		##var hit_note: Note
-		##for n: Note in game.note_group.get_children():
-		##	if n.column == idx and n.side == note_field.get_index() and n.is_hittable(game.max_hit_window):
-		##			hit_note = n
-		##			break
-		var notes: Array = game.note_group.get_children().filter(func(n: Note) -> bool:
-			return idx == n.column and note_field.get_index() == n.side)
-		# TODO: fix the one bug where you hit both notes in a jack
-		if not notes.is_empty():
-			notes.sort_custom(func(a: Note, b: Note) -> bool: return a.time < b.time)
-			var note: Note = notes.front()
-			if note.is_hittable(game.max_hit_window):
-				hit_note.emit(note)
-				if note.was_hit:
-					note.hit_time = note.time - Conductor.playhead
-					if note.hold_size <= 0.0:
-						note.hide_all()
-					else:
-						note.hold_timer = 1.0
-						note._stupid_visual_bug = note.hit_time < 0.0
-						note.allowed_to_hide = false
-					note_field.play_animation(idx, NoteField.RepState.CONFIRM)
-		else:
+		var note: Note = _get_note(idx)
+		if note and note.is_hittable(game.max_hit_window):
+			hit_note.emit(note)
+			if note.was_hit:
+				note.hit_time = note.time - Conductor.playhead
+				if note.hold_size <= 0.0:
+					note.hide_all()
+				else:
+					note.hold_timer = 1.0
+					note._stupid_visual_bug = note.hit_time < 0.0
+					note.allowed_to_hide = false
+				note_field.play_animation(idx, NoteField.RepState.CONFIRM)
+		elif not note:
 			note_field.play_animation(idx, NoteField.RepState.PRESSED)
 			if not Global.settings.ghost_tapping:
 				miss_note.emit(null, idx)

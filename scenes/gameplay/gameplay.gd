@@ -56,17 +56,16 @@ func _ready() -> void:
 	Conductor.on_beat_hit.connect(on_beat_hit)
 	
 	var skip_countdown: bool = false
+	var crotchet_offset: float = -3.0
 	if hud:
 		hud.init_vars()
 		skip_countdown = hud.skip_countdown
-		hud.update_score_text()
 		if not skip_countdown:
-			Conductor.set_time(Conductor.crotchet * -5.0)
+			crotchet_offset = -5.0
 			hud.start_countdown()
-	if skip_countdown:
-		Conductor.set_time(Conductor.crotchet * -3.0)
-	
-	Global.update_discord("Solo (1 of 1)", "Zero Fucks")
+		hud.update_score_text()
+	Conductor.set_time(Conductor.crotchet * crotchet_offset)
+	Global.update_discord("Solo (1 of 1)", "In-game")
 
 func _exit_tree() -> void:
 	Conductor.length = -1.0
