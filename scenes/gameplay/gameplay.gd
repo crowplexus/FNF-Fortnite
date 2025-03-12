@@ -91,7 +91,7 @@ func _process(delta: float) -> void:
 		if should_process_events:
 			process_timed_events()
 	# hud bumping #
-	if hud_layer.scale != Vector2.ONE:
+	if hud_layer.is_inside_tree() and hud_layer.scale != Vector2.ONE:
 		hud_layer.scale = hud.get_bump_lerp_vector(hud_layer.scale, Vector2.ONE, delta)
 		hud_layer.offset.x = (hud_layer.scale.x - 1.0) * -(get_viewport_rect().size.x * 0.5)
 		hud_layer.offset.y = (hud_layer.scale.y - 1.0) * -(get_viewport_rect().size.y * 0.5)
