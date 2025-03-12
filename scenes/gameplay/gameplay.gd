@@ -179,7 +179,8 @@ func on_note_hit(note: Note) -> void:
 
 func on_note_miss(note: Note, idx: int = -1) -> void:
 	if note and note.was_missed or idx == -1: return
-	tally.break_combo()
+	tally.break_combo() # break combo (if possible)
+	tally.increase_misses(1) # increase by one
 	fucker_temp.sing(idx, true, "miss")
 	hud.update_score_text()
 
