@@ -38,11 +38,11 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if Global.bgm and Global.bgm.playing:
 		Conductor.update(Global.bgm.get_playback_position() + AudioServer.get_time_since_last_mix())
-	for item: Control in song_container.get_children():
-		var index: int = item.get_index()
-		#var scaled_y: float = remap(index, 0, 1, 0, 1.3)
-		item.position.x = lerpf(item.position.x, item.size.x + (60 * sin(index - selected)), exp(delta * 10))
-		item.position.y = lerpf(item.position.y, index * ((item.size.y * item.scale.y) + 10) + 120, exp(delta * 80))
+	#for item: Control in song_container.get_children():
+	#	var index: int = item.get_index()
+	#	#var scaled_y: float = remap(index, 0, 1, 0, 1.3)
+	#	item.position.x = lerpf(item.position.x, item.size.x + (60 * sin(index - selected)), exp(delta * 10))
+	#	item.position.y = lerpf(item.position.y, index * (((item.size.y * item.scale.y) / get_viewport_rect().size.y) + 10), exp(delta * 80))
 
 func _unhandled_input(event: InputEvent) -> void:
 	if exiting: return

@@ -205,7 +205,7 @@ func on_note_miss(note: Note, idx: int = -1) -> void:
 
 
 func on_beat_hit(beat: float) -> void:
-	if fmod(beat, 4.0) == 0:
+	if int(beat * 100) % 400 == 0:
 		hud_layer.scale += Vector2(hud.get_bump_scale(), hud.get_bump_scale())
 
 

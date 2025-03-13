@@ -7,6 +7,8 @@ signal on_beat_hit(beat: float)
 ## Signal fired every bar / measure hit
 signal on_bar_hit(bar: float)
 
+const BEAT_EPSILON: float = 0.0001
+
 @onready var metronome: AudioStreamPlayer = $%"metronome"
 ## I wonder what this could be.
 @export var play_metronome_sound: bool = false
@@ -43,11 +45,11 @@ var timing_changes: Array[SongTimeChange] = [
 ]
 
 ## Current song beat.
-var current_beat: float = 0.0:
-	get: return snappedf(current_beat, 0.01)
+var current_beat: float = 0.0
+	#get: return snappedf(current_beat, 0.01)
 ## Current song bar.
-var current_bar: float = 0.0:
-	get: return snappedf(current_bar, 0.01)
+var current_bar: float = 0.0
+	#get: return snappedf(current_bar, 0.01)
 
 var _prev_beat: float = 0.0
 var _prev_time: float = 0.0
@@ -63,8 +65,8 @@ func reset(_bpm: float = 100.0, _active: bool = false) -> void:
 func set_time(new_time: float) -> void:
 	time = new_time
 	_prev_time = new_time
-	current_beat = (new_time * bpm) / 60.0
-	current_bar = current_beat * 4.0
+	current_beat = 0.0#(new_time * bpm) / 60.0
+	current_bar = 0.0#current_beat * 4.0
 	_prev_beat = current_beat
 
 
@@ -80,15 +82,12 @@ func update(new_time: float) -> void:
 
 	current_beat += beat_dt
 	current_bar += beat_dt * 4.0
-
-	if floorf(current_beat) > floorf(_prev_beat):
-		if play_metronome_sound:
-			metronome.play(0.0)
+	if absf(_prev_beat - current_beat) >= 1.0:
+		if play_metronome_sound: metronome.play(0.0)
 		on_beat_hit.emit(current_beat)
-		if fmod(floorf(current_beat), 4.0) == 0:
+		if fmod(current_beat, 4.0) < Conductor.BEAT_EPSILON:
 			on_bar_hit.emit(current_bar)
-		_prev_beat = current_beat
-
+		_prev_beat = floori(current_beat)
 	_prev_time = time
 
 ## Returns the latest bpm according to the time frame.

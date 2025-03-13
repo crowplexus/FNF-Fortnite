@@ -13,7 +13,7 @@ extends Node2D
 ## Camera will zoom automatically.
 @export var auto_zoom: bool = true
 ## Zoom Interval (in beats).
-@export var zoom_interval: float = 2.0
+@export var zoom_interval: float = 4.0
 ## Zoom Intensity (in beats).
 @export var zoom_intensity: float = 0.020 # 20%
 
@@ -45,5 +45,7 @@ func reset_camera_bump(_delta: float) -> void:
 
 func bump_camera(beat: float) -> void:
 	if not camera or not auto_zoom: return
-	if floori(beat) % floori(zoom_interval) == 0:
+	# TODO: detect how many digits zoom_interval has then fix the calc for those.
+	#var digits: int = str(zoom_interval).split("").size()
+	if int(beat * 100) % int(zoom_interval * 100) == 0: # man fuck this floating point shitt
 		camera.zoom += Vector2(zoom_intensity, zoom_intensity)

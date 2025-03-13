@@ -15,8 +15,11 @@ extends TemplateHUD
 @onready var icon_p1: Sprite2D = $"health_bar/icon_p1"
 @onready var icon_p2: Sprite2D = $"health_bar/icon_p2"
 
-var default_icon_p1_scale: Vector2 = Vector2.ONE
-var default_icon_p2_scale: Vector2 = Vector2.ONE
+var default_ip1_pos: Vector2 = Vector2.ZERO
+var default_ip2_pos: Vector2 = Vector2.ZERO
+
+var default_ip1_scale: Vector2 = Vector2.ONE
+var default_ip2_scale: Vector2 = Vector2.ONE
 
 var countdown_tween: Tween
 
@@ -31,18 +34,26 @@ func _ready() -> void:
 	if get_tree().current_scene and get_tree().current_scene is Node2D:
 		game = get_tree().current_scene
 	Conductor.on_beat_hit.connect(on_beat_hit)
-	if icon_p1: default_icon_p1_scale = icon_p1.scale
-	if icon_p2: default_icon_p2_scale = icon_p2.scale
+	if icon_p1:
+		default_ip1_pos = icon_p1.position
+		default_ip1_scale = icon_p1.scale
+	if icon_p2:
+		default_ip2_pos = icon_p2.position
+		default_ip2_scale = icon_p2.scale
+	print_debug(default_ip1_pos, default_ip2_pos)
 	_on_settings_changed()
 	countdown.hide()
 
 func _process(delta: float) -> void:
 	if health_bar.value != _prev_health:
-		health_bar.value = lerp(health_bar.value, _prev_health, 0.05)
-	if icon_p1 and icon_p1.scale != default_icon_p1_scale:
-		icon_p1.scale = Global.lerpv2(default_icon_p1_scale, icon_p1.scale, exp(-delta * 20.0 * Conductor.rate))
-	if icon_p2 and icon_p2.scale != default_icon_p2_scale:
-		icon_p2.scale = Global.lerpv2(default_icon_p2_scale, icon_p2.scale, exp(-delta * 20.0 * Conductor.rate))
+		health_bar.value = lerp(health_bar.value, floorf(_prev_health), 0.05)
+	if icon_p1 and icon_p1.scale != default_ip1_scale:
+		icon_p1.scale = Global.lerpv2(default_ip1_scale, icon_p1.scale, exp(-delta * 20.0 * Conductor.rate))
+		icon_p1.position.x = lerpf(icon_p1.position.x, default_ip1_pos.x + (health_bar.size.x * 0.51) - (_prev_health * 6.0), 0.05)
+	if icon_p2 and icon_p2.scale != default_ip2_scale:
+		icon_p2.scale = Global.lerpv2(default_ip2_scale, icon_p2.scale, exp(-delta * 20.0 * Conductor.rate))
+		icon_p2.position.x = lerpf(icon_p2.position.x, default_ip2_pos.x + (health_bar.size.x * 0.51) - (_prev_health * 6.0), 0.05)
+		
 
 func _exit_tree() -> void:
 	Conductor.on_beat_hit.disconnect(on_beat_hit)
@@ -144,9 +155,8 @@ func display_combo(combo: int = -1) -> void:
 #	return "N/A"
 
 func on_beat_hit(_beat: float) -> void:
-	#if fmod(beat, 2.0) == 0.0:
-	if icon_p1: icon_p1.scale = default_icon_p1_scale * 1.2
-	if icon_p2: icon_p2.scale = default_icon_p2_scale * 1.2
+	if icon_p1: icon_p1.scale = default_ip1_scale * 1.2
+	if icon_p2: icon_p2.scale = default_ip2_scale * 1.2
 
 func get_bump_lerp(from: float = 2.0, to: float = 1.0, _delta: float = 0) -> float:
 	return lerpf(from, to, 0.05) # TODO: use exp()
