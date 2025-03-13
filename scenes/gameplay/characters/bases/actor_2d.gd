@@ -81,7 +81,7 @@ func die() -> void:
 	instance.skeleton.global_position = pos
 	instance.skeleton.name = "skeleton"
 	instance.add_child(instance.skeleton)
-	instance.move_child(instance.skeleton, index)
+	instance.move_child(instance.skeleton, 1)
 	# add the scene to to where it should be.
 	#if get_tree().current_scene is Gameplay:
 	#	get_tree().current_scene.hud_layer.add_child(instance)

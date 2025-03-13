@@ -12,7 +12,7 @@ const GAME_OVER_SECRET: AudioStream = preload("res://assets/music/gameover/secre
 @onready var secret_message: Control = $"secret_texts/message"
 @onready var stupid_buttons: Array[Control] = [da_text, nyet_text]
 
-@onready var bg: ColorRect = $"secret_texts/bg"
+@onready var bg: ColorRect = $"bg"
 @onready var gore: Sprite2D = $"secret_texts/gore_of_my_comfort_character"
 
 var selected: int = -1
@@ -32,11 +32,13 @@ func _start_game_over() -> void:
 		camera.position_smoothing_speed = 1.0 # slow it down if possible...
 	
 	oops = randf_range(0, 100) < 2 # 2% chance
-	if oops:
-		text_tweens.resize(stupid_buttons.size() + 1)
-		for text: Control in stupid_buttons: text.modulate.a = 0.0
-		secret_message.modulate.a = 0.0
-		secret_texts.show()
+	# hide secret sequence texts
+	if oops: text_tweens.resize(stupid_buttons.size() + 1)
+	for text: Control in stupid_buttons: text.modulate.a = 0.0
+	secret_message.modulate.a = 0.0
+	bg.modulate.a = 0.0
+	bg.visible = true
+	create_tween().set_ease(Tween.EASE_IN).tween_property(bg, "modulate:a", 0.7, 1.0).set_delay(0.5)
 	Global.play_sfx(skeleton.death_sound)
 	if skeleton and skeleton.anim:
 		skeleton.anim.animation_finished.connect(_progress_animations)
@@ -52,7 +54,7 @@ func _process(delta: float) -> void:
 				if obj == secret_message:
 					text_tweens[i].finished.connect(update_selection)
 			texts_displayed = true
-		if camera and not camera_moved and skeleton.anim.current_animation == "deathLoop" and skeleton.anim.current_animation_position >= 0.5:
+		if camera and not camera_moved and skeleton.anim.current_animation == "deathStart" and skeleton.anim.current_animation_position >= 0.5:
 			camera.global_position = skeleton.global_position
 			camera_moved = true
 
@@ -83,7 +85,7 @@ func _progress_animations(animation: StringName) -> void:
 			music.play(0.0)
 			selected = 0
 			can_change = true
-			update_selection()
+			if oops: update_selection()
 		&"deathConfirm":
 			if oops:
 				for i: int in stupid_buttons.size() + 1:
@@ -99,7 +101,8 @@ func _selected_nyet() -> void:
 		get_tree().paused = false
 		Global.change_scene("res://scenes/menu/freeplay_menu.tscn")
 		return
-	bg.show()
+	bg.modulate.a = 1.0
+	if not bg.visible: bg.show()
 	skeleton.hide()
 	secret_message.hide()
 	nyet_text.hide()
@@ -118,10 +121,17 @@ func _selected_nyet() -> void:
 	Global.change_scene("res://scenes/menu/freeplay_menu.tscn", true)
 
 func _selected_da() -> void:
+	music.stop()
 	can_change = false
 	Global.play_sfx(skeleton.death_confirm_sound)
-	music.stop()
+	bg.modulate.a = 0.0
+	# MANUALLY DOING THIS WOO
+	skeleton.z_index = 1
+	bg.z_index = 2
+	var tween: Tween = create_tween().set_ease(Tween.EASE_IN)
+	tween.tween_property(bg, "modulate:a", 1.0, 1.0)
 	skeleton.play_animation("deathConfirm")
+	bg.visible = true
 	await get_tree().create_timer(3.0).timeout
 	get_tree().paused = false
 	Global.change_scene(load("res://scenes/gameplay/gameplay.tscn"))

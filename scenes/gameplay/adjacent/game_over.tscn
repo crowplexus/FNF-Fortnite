@@ -14,14 +14,17 @@ outline_color = Color(0, 0, 0, 1)
 [node name="game_over" type="Node2D"]
 script = ExtResource("1_3h0j1")
 
-[node name="secret_texts" type="CanvasLayer" parent="."]
-visible = false
-
-[node name="bg" type="ColorRect" parent="secret_texts"]
-visible = false
-offset_right = 1280.0
-offset_bottom = 720.0
+[node name="bg" type="ColorRect" parent="."]
+offset_left = -2000.0
+offset_top = -3000.0
+offset_right = 3000.0
+offset_bottom = 2000.0
 color = Color(0, 0, 0, 1)
+
+[node name="skeleton" parent="." instance=ExtResource("2_27ttc")]
+position = Vector2(617, 391)
+
+[node name="secret_texts" type="CanvasLayer" parent="."]
 
 [node name="gore_of_my_comfort_character" type="Sprite2D" parent="secret_texts"]
 visible = false
@@ -57,8 +60,5 @@ text = "Нет"
 label_settings = SubResource("LabelSettings_yafmw")
 horizontal_alignment = 1
 vertical_alignment = 1
-
-[node name="skeleton" parent="." instance=ExtResource("2_27ttc")]
-position = Vector2(617, 391)
 
 [node name="music" type="AudioStreamPlayer" parent="."]
