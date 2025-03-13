@@ -79,7 +79,7 @@ func update_tier_score(tier: int) -> void:
 
 ## Calculates the ratio of all tiers (except the highest) up to all the other judgements.[br]
 ## Returns 0.0 if Global.settings.use_epics is disabled.
-func calculate_epic_attack() -> float:
+func calculate_epic_ratio() -> float:
 	if not Global.settings.use_epics:
 		# there's no reason for this to be calculate cus there's only 4 (or less) judgements
 		return 0.0
@@ -88,7 +88,7 @@ func calculate_epic_attack() -> float:
 
 ## Calculates the ratio of Tier 1s (Sicks) up to all the other judgements.[br]
 ## Returns 0.0 if Global.settings.use_epics is disabled.
-func calculate_sick_attack() -> float:
+func calculate_sick_ratio() -> float:
 	if not Global.settings.use_epics:
 		# there's no reason for this to be calculate cus there's only 4 (or less) judgements
 		return 0.0

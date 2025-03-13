@@ -2,6 +2,7 @@ class_name Player
 extends Node
 
 signal hit_note(note: Note)
+signal hit_hold_note(note: Note)
 signal miss_note(note: Note, dir: int)
 
 ## Actions to use for controlling.
@@ -22,24 +23,30 @@ func _ready() -> void:
 			miss_note.connect(game.on_note_miss)
 	keys_held.resize(controls.size())
 	keys_held.fill(false)
+	if note_field:
+		for idx: int in note_field.get_child_count():
+			note_field.set_reset_animation(idx, NoteField.RepState.PRESSED)
 
 func _process(delta: float) -> void:
 	if not game or not game.note_group or game.note_group.note_list.is_empty():
 		return
 	for note: Note in game.note_group.get_children():
-		if not note.visible or note.hold_size <= 0.0 or note.hold_timer <= 0.0 or note.side != note_field.get_index() or not note.was_hit:
+		if not note.visible or note.hold_size <= 0.0 or note.trip_timer <= 0.0 or note.side != note_field.get_index() or not note.was_hit:
 			continue
 		note.update_hold(delta)
-		if keys_held[note.column]:
-			note_field.play_animation(note.column, NoteField.RepState.CONFIRM)
+		var missed: bool = false
+		if keys_held[note.column] == true:
+			note_field.play_animation(note.column, NoteField.RepState.CONFIRM, fmod(note.hold_size, 0.05) == 0)
+			hit_hold_note.emit(note)
 		else:
-			note.hold_timer -= 0.05 * absf(note.hold_size)
-		if note.hold_timer <= 0.0:
-			note_field.play_animation(note.column, NoteField.RepState.STATIC, true)
+			note.trip_timer -= 0.05 * absf(note.hold_size)
+		if note.trip_timer <= 0.0:
+			#note_field.play_animation(note.column, NoteField.RepState.STATIC, true)
+			note_field.set_reset_timer(note.column, 0.05)
 			miss_note.emit(note, note.column)
 			note.dropped = true
 			note.moving = true
-			#note.hide_all()
+			note.hide_all()
 
 func _get_note(idx: int) -> Note:
 	var note: Note
@@ -74,6 +81,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	keys_held[idx % keys_held.size()] = Input.is_action_pressed(action)
 	if Input.is_action_just_released(action):
 		note_field.play_animation(idx, NoteField.RepState.STATIC)
+		note_field.set_reset_timer(idx, 0.0)
 		return
 	if Input.is_action_just_pressed(action):
 		var note: Note = _get_note(idx)
@@ -83,11 +91,12 @@ func _unhandled_key_input(event: InputEvent) -> void:
 				note.hit_time = note.time - Conductor.playhead
 				if note.hold_size <= 0.0:
 					note.hide_all()
+					note_field.play_animation(idx, NoteField.RepState.CONFIRM)
+					note_field.set_reset_timer(idx, 0.3)
 				else:
-					note.hold_timer = 1.0
+					note.trip_timer = 1.0
 					note._stupid_visual_bug = note.hit_time < 0.0
 					note.allowed_to_hide = false
-				note_field.play_animation(idx, NoteField.RepState.CONFIRM)
 		elif not note:
 			note_field.play_animation(idx, NoteField.RepState.PRESSED)
 			if not Global.settings.ghost_tapping:

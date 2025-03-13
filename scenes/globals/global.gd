@@ -17,6 +17,16 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		get_window().mode = Window.MODE_WINDOWED if is_full else Window.MODE_FULLSCREEN
 #endregion
 
+#region Utils
+
+func change_scene(next, immediate: bool = false) -> void:
+	# TODO: transition
+	if immediate: await get_tree().create_timer(0.5).timeout
+	if next is String: get_tree().change_scene_to_file(next)
+	elif next is PackedScene: get_tree().change_scene_to_packed(next)
+
+#endregion
+
 #region Music
 var music_fade_tween: Tween
 

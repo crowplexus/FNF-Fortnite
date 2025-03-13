@@ -18,7 +18,7 @@ static var chart: BaseChart
 @onready var note_group: Node = $"hud_layer/note_group"
 @onready var hud_layer: CanvasLayer = $"hud_layer"
 @onready var hud: TemplateHUD = $"hud_layer/hud"
-@onready var fucker_temp: Actor2D = $"bf"
+@onready var player: Actor2D = $"bf"
 
 var assets: ChartAssets
 var game_mode: PlayMode = PlayMode.FREEPLAY
@@ -32,10 +32,13 @@ var max_hit_window: float = Tally.get_max_hit_window_secs()
 var is_ending: bool = false
 var starting: bool = true
 
+# temporarily here until I figure something out!
+var health: int = 50 # 50%
+
 func _ready() -> void:
 	if not tally: tally = Tally.new()
 	print_debug("max hit window is ", max_hit_window, " (", max_hit_window * 1000.0, "ms)")
-	if chart.assets:
+	if chart and chart.assets:
 		assets = chart.assets
 		load_streams()
 		reload_hud()
@@ -49,11 +52,11 @@ func _ready() -> void:
 		if node is NoteField: note_fields.append(node)
 	
 	player_strums = note_fields[1]
-	for note_field: NoteField in note_fields:
-		note_field.speed = chart.get_speed()
-	print_debug("scroll speed changed to ", chart.get_speed(), " at ", Conductor.time)
-	
-	Conductor.reset(chart.get_bpm(), false)
+	if chart:
+		for note_field: NoteField in note_fields:
+			note_field.speed = chart.get_speed()
+		print_debug("scroll speed changed to ", chart.get_speed(), " at ", Conductor.time)
+		Conductor.reset(chart.get_bpm(), false)
 	Conductor.on_beat_hit.connect(on_beat_hit)
 	
 	var skip_countdown: bool = false
@@ -101,7 +104,8 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		exit_game()
 		return
 	var action: String = player_strums.player.get_action_name(event)
-	if not action.dedent().is_empty(): fucker_temp.pause_sing = Input.is_action_pressed(action)
+	if not action.dedent().is_empty():
+		player.pause_sing = player_strums.player.keys_held.has(true)
 
 func process_timed_events() -> void:
 	if timed_events.is_empty() or event_position >= timed_events.size():
@@ -124,8 +128,9 @@ func process_timed_events() -> void:
 			current_event.was_fired = true
 	event_position += 1
 
+
 func reload_hud() -> void:
-	if chart.assets.hud:
+	if chart.assets and chart.assets.hud:
 		hud.set_process(false) # just in case
 		hud.queue_free()
 		hud = chart.assets.hud.instantiate()
@@ -134,7 +139,7 @@ func reload_hud() -> void:
 
 
 func load_streams() -> void:
-	if chart.assets.instrumental:
+	if chart.assets and chart.assets.instrumental:
 		music.stream.set_sync_stream(0, chart.assets.instrumental)
 		Conductor.length = chart.assets.instrumental.get_length()
 		if chart.assets.vocals:
@@ -158,12 +163,13 @@ func on_note_hit(note: Note) -> void:
 	if note.was_hit or note.column == -1:
 		return
 	note.was_hit = true
+	health = clampi(health + 5, 0, 100)
 	var abs_diff: float = absf(note.time - Conductor.playhead)
 	var judged_tier: int = Tally.judge_time(abs_diff * 1000.0)
 	var judgement: Judgement = judgements.list[judged_tier]
 	if note.forced_splash or judgement.splash_type != Judgement.SplashType.DISABLED:
 		note.display_splash()
-	fucker_temp.sing(note.column, true)
+	player.sing(note.column, note.arrow.visible)
 	# Scoring Stuff
 	tally.increase_score(abs_diff * 1000.0)
 	if judgement.combo_break:
@@ -175,20 +181,34 @@ func on_note_hit(note: Note) -> void:
 	hud.display_judgement(judgement.texture)
 	hud.display_combo(tally.combo)
 	hud.update_score_text()
+	hud.update_health(health)
+	attempt_to_die()
+
+func attempt_to_die() -> void:
+	if health <= 0: # игра окоичена!
+		# TODO: the base game thing where it doesn't directly reset the scene
+		# but instead tweens the notes back up, restarts all counters and plays the song from the beginning
+		hud_layer.hide()
+		music.stop()
+		player.die()
 
 
 func on_note_miss(note: Note, idx: int = -1) -> void:
 	if note and note.was_missed or idx == -1: return
 	tally.break_combo() # break combo (if possible)
 	tally.increase_misses(1) # increase by one
-	fucker_temp.sing(idx, true, "miss")
+	player.sing(idx, true, "miss")
+	health = clampi(health - 5, 0, 100)
 	hud.update_score_text()
+	hud.update_health(health)
+	attempt_to_die()
 
 
 func on_beat_hit(beat: float) -> void:
 	if fmod(beat, 4.0) == 0:
 		hud_layer.scale += Vector2(hud.get_bump_scale(), hud.get_bump_scale())
 
+
 func exit_game() -> void:
 	tally = null
-	get_tree().change_scene_to_file("res://scenes/menu/freeplay_menu.tscn")
+	Global.change_scene("res://scenes/menu/freeplay_menu.tscn")

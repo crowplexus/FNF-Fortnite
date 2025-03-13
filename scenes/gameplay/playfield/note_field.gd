@@ -2,13 +2,13 @@
 ## visually representing a player's playfield.
 class_name NoteField
 extends Node2D
+
 enum RepState {
 	STATIC = 0,
 	PRESSED = 1,
 	CONFIRM = 2,
 }
-## How many of the receptors are being held at a time
-var keys_held: Array[bool] = []
+
 ## Player Node attached to this note field, will try to set automatically if null.
 @export var player: Player
 ## Note Speed for this particular note field, is affected by the chart, may be increased by timed events.
@@ -25,15 +25,15 @@ func get_receptor(idx: int) -> Node:
 
 func play_animation(idx: int = 0, state: = NoteField.RepState.STATIC, force: bool = true) -> void:
 	var receptor: = get_child(idx % get_child_count())
-	if receptor.has_method("play_animation"):
+	if receptor is Receptor and receptor.has_method("play_animation"):
 		receptor.play_animation(state, force)
 
 
 func set_reset_timer(idx: int = 0, timer: float = 0.5 * Conductor.crotchet) -> void:
 	var receptor: = get_child(idx % get_child_count())
-	receptor.reset_timer = timer
+	if receptor is Receptor: receptor.reset_timer = timer
 
 
 func set_reset_animation(idx: int = 0, new_state: = NoteField.RepState.STATIC) -> void:
 	var receptor: = get_child(idx % get_child_count())
-	receptor.reset_state = new_state
+	if receptor is Receptor: receptor.reset_state = new_state

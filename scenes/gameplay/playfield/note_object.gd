@@ -13,9 +13,11 @@ const COLORS: PackedStringArray = ["purple","blue","green","red"]
 ## Default Note Distance (in pixels)
 const DISTANCE: float = 450.0
 ## Default Hold Distance (in pixels)
-const DISTANCE_HOLD: float = 2000.0
+const DISTANCE_HOLD: float = 1500.0
 ## Arrow Size (in pixels), for test purposes.
 const ARROW_SIZE: float = 64.0
+## Hardcoded Speed Multiplier for new movement math.
+const SPEED_MULT: float = 8.0
 
 static func get_scroll_as_vector(scroll: int) -> Vector2:
 	match scroll:
@@ -65,7 +67,7 @@ var was_missed: bool = false
 var hit_time: float = 0.0
 # FOR HOLDS
 var dropped: bool = false
-var hold_timer: float = 0.0
+var trip_timer: float = 0.0
 var _stupid_visual_bug: bool = false
 var allowed_to_hide: bool = true
 # VISUALS
@@ -83,14 +85,16 @@ func _ready() -> void:
 		if has_node("clip_rect/hold_tail"): hold_tail = get_node("clip_rect/hold_tail")
 		clip_rect.scale *= -scroll_mult
 
+func get_total_speed() -> float:
+	var speed: float = note_field.speed * note_field.get_receptor(column % note_field.get_child_count()).speed
+	return speed * Note.SPEED_MULT
 
 func scroll_ahead() -> void:
 	if not note_field or column == -1:
 		return
 	# i stole this shit from OpenITG https://github.com/openitg/openitg/blob/f2c129fe65c65e4a9b3a691ff35e7717b4e8de51/src/ArrowEffects.cpp#L42
 	# TODO: change how speed works later
-	var strum_speed: float = note_field.speed * note_field.get_receptor(column % note_field.get_child_count()).speed
-	var beat_speed: float = (strum_speed * 10.0)#Conductor.bpm
+	var beat_speed: float = get_total_speed()#Conductor.bpm
 	var secs_until_step: float = time - Conductor.playhead
 	var next_y: float = secs_until_step * beat_speed * Note.ARROW_SIZE
 	position.y = note_field.global_position.y + next_y * -scroll_mult.y #/ absf(scale.y)
@@ -120,8 +124,7 @@ func reload(p_data: NoteData) -> void:
 func display_hold(size: float = 0.0, speed: float = 0.0 if data else 1.0) -> void:
 	if column != -1 and not hold_body or not clip_rect:
 		return
-	if speed == 0.0:
-		speed = note_field.speed * note_field.get_receptor(column).speed if note_field else 1.0
+	if speed == 0.0: speed = get_total_speed()
 	# general implementation, should work for everything???
 	hold_body.size.y = (Note.DISTANCE_HOLD * speed) * size
 	hold_body.size.x = hold_body.texture.get_width()

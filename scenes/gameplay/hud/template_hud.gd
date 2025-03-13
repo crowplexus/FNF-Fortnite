@@ -35,6 +35,10 @@ func start_countdown() -> void:
 func update_score_text() -> void:
 	pass
 
+## Updates the health bar to display a new value.
+func update_health(health: int) -> void:
+	pass
+
 @warning_ignore("unused_parameter")
 ## Displays a judgement sprite on-screen.
 func display_judgement(image: Texture2D) -> void:

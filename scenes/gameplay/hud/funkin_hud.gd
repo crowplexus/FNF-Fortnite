@@ -23,6 +23,7 @@ var countdown_tween: Tween
 var countdown_textures: Array[Texture2D] = []
 var countdown_streams: Array[AudioStream] = []
 var _countdown_iteration: int = 0
+var _prev_health: int = 50
 
 var game: Node2D
 
@@ -36,6 +37,8 @@ func _ready() -> void:
 	countdown.hide()
 
 func _process(delta: float) -> void:
+	if health_bar.value != _prev_health:
+		health_bar.value = lerp(health_bar.value, _prev_health, 0.05)
 	if icon_p1 and icon_p1.scale != default_icon_p1_scale:
 		icon_p1.scale = Global.lerpv2(default_icon_p1_scale, icon_p1.scale, exp(-delta * 20.0 * Conductor.rate))
 	if icon_p2 and icon_p2.scale != default_icon_p2_scale:
@@ -110,6 +113,9 @@ func update_score_text() -> void:
 	var tally: bool = game and game.tally
 	score_text.text  = tr("score", &"gameplay") + ": %s" % (0 if not tally else game.tally.score)
 	misses_text.text = tr("misses", &"gameplay") + ": %s" % (0 if not tally else game.tally.misses)
+
+func update_health(health: int) -> void:
+	_prev_health = health
 
 func display_judgement(image: Texture2D) -> void:
 	combo_group.display_judgement(image)

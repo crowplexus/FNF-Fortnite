@@ -11,12 +11,14 @@ func _process(delta: float) -> void:
 		return
 	for note: Note in game.note_group.get_children():
 		if note.time <= Conductor.playhead and note.side == note_field.get_index():
-			note.was_hit = true
 			hit_note.emit(note)
+			note.was_hit = true
 			var was_hold: bool = note.hold_size > 0.0
 			if note.hold_size > 0.0:
 				note.update_hold(delta)
-				note_field.play_animation(note.column, NoteField.RepState.CONFIRM)
+				if fmod(note.hold_size, 0.05) == 0:
+					note_field.play_animation(note.column, NoteField.RepState.CONFIRM)
+					hit_hold_note.emit(note)
 				note.allowed_to_hide = true
 			if note.hold_size <= 0.0:
 				if was_hold: note_field.play_animation(note.column, NoteField.RepState.STATIC)

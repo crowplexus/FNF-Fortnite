@@ -1,4 +1,4 @@
-extends Node
+extends Node2D
 
 const TEMPLATE_NOTE: PackedScene = preload("res://scenes/gameplay/playfield/notes/normal_note.tscn")
 
@@ -54,7 +54,8 @@ func move_present_nodes() -> void:
 func try_spawning() -> void:
 	while list_position < note_list.size():
 		var note_data: NoteData = note_list[list_position]
-		if absf(note_data.time - Conductor.time) > 0.8: break
+		if absf(note_data.time - Conductor.time) > 1.0: # TODO: account for note speed
+			break
 		var new_note: Note = get_note()
 		new_note.reload(note_data)
 		on_note_spawned.emit(note_data, new_note)

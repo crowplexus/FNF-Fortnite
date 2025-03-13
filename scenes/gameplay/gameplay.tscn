@@ -29,7 +29,7 @@ visible = false
 
 [node name="hud" parent="hud_layer" instance=ExtResource("2_0w2j2")]
 
-[node name="note_group" type="Node" parent="hud_layer"]
+[node name="note_group" type="Node2D" parent="hud_layer"]
 script = ExtResource("4_q64rj")
 
 [node name="scream" type="AudioStreamPlayer" parent="."]
