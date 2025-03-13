@@ -31,7 +31,7 @@ func _start_game_over() -> void:
 		camera.position_smoothing_enabled = true # guarantee that it's enabled
 		camera.position_smoothing_speed = 1.0 # slow it down if possible...
 	
-	oops = randf_range(0, 100) < 2 # 2% chance
+	oops = true#randf_range(0, 100) < 2 # 2% chance
 	# hide secret sequence texts
 	if oops: text_tweens.resize(stupid_buttons.size() + 1)
 	for text: Control in stupid_buttons: text.modulate.a = 0.0
