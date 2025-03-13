@@ -15,6 +15,7 @@ outline_color = Color(0, 0, 0, 1)
 script = ExtResource("1_3h0j1")
 
 [node name="secret_texts" type="CanvasLayer" parent="."]
+visible = false
 
 [node name="bg" type="ColorRect" parent="secret_texts"]
 visible = false

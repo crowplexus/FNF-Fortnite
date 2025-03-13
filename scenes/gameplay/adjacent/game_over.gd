@@ -36,6 +36,7 @@ func _start_game_over() -> void:
 		text_tweens.resize(stupid_buttons.size() + 1)
 		for text: Control in stupid_buttons: text.modulate.a = 0.0
 		secret_message.modulate.a = 0.0
+		secret_texts.show()
 	Global.play_sfx(skeleton.death_sound)
 	if skeleton and skeleton.anim:
 		skeleton.anim.animation_finished.connect(_progress_animations)
