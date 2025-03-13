@@ -87,7 +87,7 @@ func update(new_time: float) -> void:
 		on_beat_hit.emit(current_beat)
 		if fmod(current_beat, 4.0) < Conductor.BEAT_EPSILON:
 			on_bar_hit.emit(current_bar)
-		_prev_beat = floori(current_beat)
+		_prev_beat = current_beat
 	_prev_time = time
 
 ## Returns the latest bpm according to the time frame.
