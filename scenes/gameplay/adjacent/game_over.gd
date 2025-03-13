@@ -31,7 +31,7 @@ func _start_game_over() -> void:
 		camera.position_smoothing_enabled = true # guarantee that it's enabled
 		camera.position_smoothing_speed = 1.0 # slow it down if possible...
 	
-	oops = true#randf_range(0, 100) < 2 # 2% chance
+	oops = randf_range(0, 100) < 2 # 2% chance
 	# hide secret sequence texts
 	if oops: text_tweens.resize(stupid_buttons.size() + 1)
 	for text: Control in stupid_buttons: text.modulate.a = 0.0
@@ -128,8 +128,9 @@ func _selected_da() -> void:
 	# MANUALLY DOING THIS WOO
 	skeleton.z_index = 1
 	bg.z_index = 2
-	var tween: Tween = create_tween().set_ease(Tween.EASE_IN)
+	var tween: Tween = create_tween().set_ease(Tween.EASE_IN).set_parallel(is_instance_valid(camera))
 	tween.tween_property(bg, "modulate:a", 1.0, 1.0)
+	if camera: tween.tween_property(camera, "zoom", Vector2(1.05, 1.05), 0.6)
 	skeleton.play_animation("deathConfirm")
 	bg.visible = true
 	await get_tree().create_timer(3.0).timeout

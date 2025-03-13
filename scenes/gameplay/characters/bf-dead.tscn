@@ -52,9 +52,9 @@ tracks/2/keys = {
 "values": [Vector2(0, 0)]
 }
 
-[sub_resource type="Animation" id="Animation_nuwry"]
-resource_name = "deathStart"
-length = 2.37501
+[sub_resource type="Animation" id="Animation_c775y"]
+resource_name = "deathConfirm"
+length = 1.37501
 step = 0.0416667
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -66,7 +66,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"BF dies"]
+"values": [&"BF Dead confirm"]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -75,10 +75,10 @@ tracks/1/path = NodePath("animated_sprite_2d:frame")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 2.375),
+"times": PackedFloat32Array(0, 1.375),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [0, 57]
+"values": [0, 33]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -90,7 +90,7 @@ tracks/2/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(0, 0)]
+"values": [Vector2(0, -30)]
 }
 
 [sub_resource type="Animation" id="Animation_bqijy"]
@@ -135,9 +135,9 @@ tracks/2/keys = {
 "values": [Vector2(0, 2)]
 }
 
-[sub_resource type="Animation" id="Animation_c775y"]
-resource_name = "deathConfirm"
-length = 1.37501
+[sub_resource type="Animation" id="Animation_nuwry"]
+resource_name = "deathStart"
+length = 2.37501
 step = 0.0416667
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -149,7 +149,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"BF Dead confirm"]
+"values": [&"BF dies"]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -158,10 +158,10 @@ tracks/1/path = NodePath("animated_sprite_2d:frame")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 1.375),
+"times": PackedFloat32Array(0, 2.375),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [0, 33]
+"values": [0, 57]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -173,7 +173,7 @@ tracks/2/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(0, -30)]
+"values": [Vector2(0, 0)]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_7smad"]
