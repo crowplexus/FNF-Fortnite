@@ -26,12 +26,9 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		KEY_0,		KEY_KP_0		: Global.settings.master_mute = not Global.settings.master_mute
 
 func update_overlay() -> void:
-	fps_label.text = "%s FPS\n"
+	fps_label.text = "%s FPS\n" % Engine.get_frames_per_second()
 	if OS.is_debug_build():
-		fps_label.text += "%s RAM" % [
-			Engine.get_frames_per_second(),
-			String.humanize_size(OS.get_static_memory_usage()),
-		]
+		fps_label.text += "%s RAM" % String.humanize_size(OS.get_static_memory_usage())
 
 func update_master_volume(bhm: int = 0) -> void:
 	Global.settings.master_volume += bhm
