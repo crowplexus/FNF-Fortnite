@@ -22,9 +22,16 @@ const SECRET_MESSAGES: Array[String] = [
 @onready var gore: Sprite2D = $"secret_texts/gore_of_my_comfort_character"
 
 var selected: int = -1
-var can_change: bool = false
+var can_change: bool = false:
+	set(new_change):
+		set_process_input(new_change)
+		set_process_unhandled_input(new_change)
+		set_process_unhandled_key_input(new_change)
+		set_process_shortcut_input(new_change)
+		can_change = new_change
 var texts_displayed: bool = false
 var camera_moved: bool = true
+var og_camera_zoom: Vector2 = Vector2.ONE
 var text_tweens: Array[Tween] = []
 var oops: bool = false
 var camera: Camera2D
@@ -33,6 +40,7 @@ func _start_game_over() -> void:
 	camera = get_viewport().get_camera_2d()
 	if camera:
 		camera_moved = false
+		og_camera_zoom = camera.zoom
 		camera.process_mode = Node.PROCESS_MODE_ALWAYS # just in case lol
 		camera.position_smoothing_enabled = true # guarantee that it's enabled
 		camera.position_smoothing_speed = 1.0 # slow it down if possible...
@@ -41,7 +49,9 @@ func _start_game_over() -> void:
 	setup_secret()
 	bg.modulate.a = 0.0
 	bg.visible = true
-	create_tween().set_ease(Tween.EASE_IN).tween_property(bg, "modulate:a", 0.7, 1.0).set_delay(0.5)
+	var tween: Tween =create_tween().set_ease(Tween.EASE_IN).set_parallel(is_instance_valid(camera))
+	tween.tween_property(bg, "modulate:a", 0.7, 1.0).set_delay(0.5)
+	if camera: tween.tween_property(camera, "zoom", og_camera_zoom * 1.1, 1.0).set_delay(0.1)
 	Global.play_sfx(skeleton.death_sound)
 	if skeleton and skeleton.anim:
 		skeleton.anim.animation_finished.connect(_progress_animations)
@@ -58,10 +68,9 @@ func setup_secret() -> void:
 	var message: String = tr("secret_msg_%s" % msg_id, &"russian-bootleg-eastergg")
 	if message.is_empty() or message == "secret_msg_%s" % msg_id:
 		message = tr("secret_msg_fallback", &"russian-bootleg-eastergg")
-	print_debug(message)
 	secret_message.text = message
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if skeleton:
 		if oops and not texts_displayed and skeleton.anim.current_animation == "deathStart" and skeleton.anim.current_animation_position >= 2.0:
 			for i: int in stupid_buttons.size() + 1:
@@ -76,8 +85,7 @@ func _process(delta: float) -> void:
 			camera_moved = true
 
 func _unhandled_input(_event: InputEvent) -> void:
-	if not can_change: return
-	var axis: int = Input.get_axis("ui_left", "ui_right")
+	var axis: int = int(Input.get_axis("ui_left", "ui_right"))
 	if axis != 0 and oops:
 		selected = wrapi(selected + axis, 0, stupid_buttons.size())
 		update_selection()
@@ -140,16 +148,31 @@ func _selected_nyet() -> void:
 func _selected_da() -> void:
 	music.stop()
 	can_change = false
+	var in_gameplay: bool = false#get_tree().current_scene is Gameplay
 	Global.play_sfx(skeleton.death_confirm_sound)
 	bg.modulate.a = 0.0
 	# MANUALLY DOING THIS WOO
-	skeleton.z_index = 1
-	bg.z_index = 2
+	if not in_gameplay:
+		skeleton.z_index = 1
+		bg.z_index = 2
 	var tween: Tween = create_tween().set_ease(Tween.EASE_IN).set_parallel(is_instance_valid(camera))
-	tween.tween_property(bg, "modulate:a", 1.0, 1.0)
-	if camera: tween.tween_property(camera, "zoom", Vector2(1.05, 1.05), 0.6)
+	tween.tween_property(bg, "modulate:a", 0.0 if in_gameplay else 1.0, 1.0)
+	if camera: tween.tween_property(camera, "zoom", og_camera_zoom * (1.0 if in_gameplay else 1.05), 0.6)
 	skeleton.play_animation("deathConfirm")
 	bg.visible = true
-	await get_tree().create_timer(3.0).timeout
-	get_tree().paused = false
-	Global.change_scene(load("res://scenes/gameplay/gameplay.tscn"))
+	await get_tree().create_timer(2.0 if in_gameplay else 3.0).timeout
+	# TODO: finish new transition
+	if in_gameplay:
+		var game: Gameplay = get_tree().current_scene as Gameplay
+		camera.global_position = get_viewport_rect().size * 0.5
+		game.health = Gameplay.DEFAULT_HEALTH_VALUE
+		game.restart_song()
+		game.player.sing(2, true)
+		game.player.idle_cooldown = 0.8
+		game.try_revive()
+		get_tree().paused = false
+		await get_tree().create_timer(0.05).timeout
+		self.queue_free()
+	else:
+		get_tree().paused = false
+		Global.change_scene(load("res://scenes/gameplay/gameplay.tscn"))

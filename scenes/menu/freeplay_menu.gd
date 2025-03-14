@@ -35,7 +35,7 @@ func _ready() -> void:
 		selected = 1
 	change_selection()
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if Global.bgm and Global.bgm.playing:
 		Conductor.update(Global.bgm.get_playback_position() + AudioServer.get_time_since_last_mix())
 	#for item: Control in song_container.get_children():

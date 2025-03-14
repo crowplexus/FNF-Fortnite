@@ -66,7 +66,7 @@ func merge(other: Tally, increase: bool = false) -> void:
 	notes_hit_count = other.notes_hit_count + (notes_hit_count if increase else 0)
 	accuracy_points = other.accuracy_points + (accuracy_points if increase else 0.0)
 	for i: int in tiers_scored.size():
-		tiers_scored[i] = other.tiers_scored[i] + (other.tiers_scored[i] if increase else 0)
+		tiers_scored[i] = other.tiers_scored[i] + (tiers_scored[i] if increase else 0)
 	update_accuracy_counter()
 
 ## Increases the score by the amount provided (in ms).

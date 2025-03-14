@@ -7,6 +7,9 @@ enum PlayMode {
 	CHARTING = (3 << 1),
 }
 
+## Default Health Percentage (50%)
+const DEFAULT_HEALTH_VALUE: int = 50
+
 var player_strums: NoteField
 # I need this to be static because of story mode,
 # since it reuses the same tally from the previous song.
@@ -30,12 +33,11 @@ var timed_events: Array[TimedEvent] = []
 var event_position: int = 0
 var should_process_events: bool = true
 
-var max_hit_window: float = Tally.get_max_hit_window_secs()
-var is_ending: bool = false
+var ending: bool = false
 var starting: bool = true
 
 # temporarily here until I figure something out!
-var health: int = 50 # 50%
+var health: int = Gameplay.DEFAULT_HEALTH_VALUE # 50%
 
 func _ready() -> void:
 	local_tally = Tally.new()
@@ -44,37 +46,33 @@ func _ready() -> void:
 	else:
 		# merge tallies if it's not a local one
 		tally.merge(local_tally)
+	var max_hit_window: float = Global.settings.max_hit_window
 	print_debug("max hit window is ", max_hit_window, " (", max_hit_window * 1000.0, "ms)")
 	if chart and chart.assets:
 		assets = chart.assets
 		load_streams()
 		reload_hud()
 	init_note_spawner()
-	
 	# setup note fields.
 	var from_where: Control
 	if hud.has_node("note_fields"): from_where = hud.get_node("note_fields")
 	elif hud_layer.has_node("note_fields"): from_where = hud.get_node("note_fields")
 	for node: Node in from_where.get_children():
 		if node is NoteField: note_fields.append(node)
-	
+
 	player_strums = note_fields[1]
-	if chart:
-		for note_field: NoteField in note_fields:
-			note_field.speed = chart.get_speed()
-		print_debug("scroll speed changed to ", chart.get_speed(), " at ", Conductor.time)
-		Conductor.reset(chart.get_bpm(), false)
 	Conductor.on_beat_hit.connect(on_beat_hit)
-	
+	if hud: hud.init_vars()
+	restart_song()
+
+func play_countdown() -> void:
 	var skip_countdown: bool = false
 	var crotchet_offset: float = -3.0
 	if hud:
-		hud.init_vars()
 		skip_countdown = hud.skip_countdown
 		if not skip_countdown:
 			crotchet_offset = -5.0
 			hud.start_countdown()
-		hud.update_score_text()
 	Conductor.set_time(Conductor.crotchet * crotchet_offset)
 	Global.update_discord("Solo (1 of 1)", "In-game")
 
@@ -82,20 +80,38 @@ func _exit_tree() -> void:
 	Conductor.length = -1.0
 	Conductor.on_beat_hit.disconnect(on_beat_hit)
 
+func restart_song() -> void:
+	ending = false
+	starting = true
+	Conductor.reset(chart.get_bpm(), false)
+	if music: music.seek(0.0)
+	for note_field: NoteField in note_fields:
+		if note_field.player is Player:
+			note_field.player.keys_held.fill(false)
+			note_field.player.note_group = note_group
+		if chart:
+			note_field.speed = chart.get_speed()
+			#print_debug("scroll speed changed to ", chart.get_speed(), " at ", Conductor.time)
+	if note_group: note_group.list_position = 0
+	event_position = 0
+	if hud:
+		hud.update_health(health)
+		hud.update_score_text()
+	play_countdown()
+
 func _process(delta: float) -> void:
-	if get_tree().paused: return
+	if music and music.playing:
+		Conductor.update(music.get_playback_position() + AudioServer.get_time_since_last_mix())
+	elif not Conductor.active:
+		Conductor.active = true
 	if starting:
 		if Conductor.time >= 0.0:
 			Global.update_discord_timestamps(0.0, Conductor.length)
 			if music: music.play(0.0)
 			starting = false
-	if music and music.playing:
-		Conductor.update(music.get_playback_position() + AudioServer.get_time_since_last_mix())
-	else: # if all else fails update the conductor anyway
-		Conductor.update(Conductor.time + delta)
-	if not starting:
-		if not is_ending and Conductor.time >= Conductor.length:
-			is_ending = true
+	else:
+		if not ending and Conductor.time >= Conductor.length:
+			ending = true
 			await get_tree().create_timer(0.5).timeout
 			exit_game()
 		if should_process_events:
@@ -106,12 +122,11 @@ func _process(delta: float) -> void:
 		hud_layer.offset.x = (hud_layer.scale.x - 1.0) * -(get_viewport_rect().size.x * 0.5)
 		hud_layer.offset.y = (hud_layer.scale.y - 1.0) * -(get_viewport_rect().size.y * 0.5)
 
-func _unhandled_key_input(event: InputEvent) -> void:
+func _unhandled_key_input(_event: InputEvent) -> void:
 	if Input.is_action_just_pressed("ui_cancel"):
 		exit_game()
 		return
-	var action: String = player_strums.player.get_action_name(event)
-	if not action.dedent().is_empty():
+	if player_strums and player_strums.player is Player:
 		player.pause_sing = player_strums.player.keys_held.has(true)
 
 func process_timed_events() -> void:
@@ -189,17 +204,20 @@ func on_note_hit(note: Note) -> void:
 	tally.merge(local_tally)
 	hud.update_score_text()
 	hud.update_health(health)
-	attempt_to_die()
+	kill_yourself()
 
-func attempt_to_die() -> void:
+func kill_yourself() -> void: # thanks Unholy
 	if health <= 0: # игра окоичена!
-		# TODO: the base game thing where it doesn't directly reset the scene
-		# but instead tweens the notes back up, restarts all counters and plays the song from the beginning
-		hud_layer.hide()
 		music.stop()
+		hud_layer.hide()
+		print_debug("Died with a MA of ", tally.calculate_epic_ratio(), " and a PA of ", tally.calculate_sick_ratio())
 		tally.zero()
 		player.die()
 
+func try_revive() -> void:
+	if health > 0:
+		player.show()
+		hud_layer.show()
 
 func on_note_miss(note: Note, idx: int = -1) -> void:
 	if note and note.was_missed or idx == -1: return
@@ -209,10 +227,10 @@ func on_note_miss(note: Note, idx: int = -1) -> void:
 	health = clampi(health - 5, 0, 100)
 	hud.update_score_text()
 	hud.update_health(health)
-	attempt_to_die()
+	kill_yourself()
 
 func on_beat_hit(beat: float) -> void:
-	if int(beat * 100) % 400 == 0:
+	if int(beat * 100) % 400 == 0: # fuck float imprecision.
 		hud_layer.scale += Vector2(hud.get_bump_scale(), hud.get_bump_scale())
 
 func exit_game() -> void:

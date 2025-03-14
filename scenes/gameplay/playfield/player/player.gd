@@ -8,19 +8,18 @@ signal miss_note(note: Note, dir: int)
 ## Actions to use for controlling.
 @export var controls: PackedStringArray = [ "note_left", "note_down", "note_up", "note_right" ]
 ## How many of the receptors are being held at a time
-var keys_held: Array[bool] = []
+@export var keys_held: Array[bool] = [ false, false, false, false ]
 
 var game: Node2D = null
 var note_field: NoteField = null
 var force_disable_input: bool = false
+var note_group: Node2D
 
 func _ready() -> void:
 	note_field = get_parent()
-	if get_tree().current_scene and get_tree().current_scene is Node2D:
-		game = get_tree().current_scene
-		if game is Gameplay:
-			hit_note.connect(game.on_note_hit)
-			miss_note.connect(game.on_note_miss)
+	game = get_tree().current_scene
+	hit_note.connect(on_note_hit)
+	miss_note.connect(on_note_miss)
 	keys_held.resize(controls.size())
 	keys_held.fill(false)
 	if note_field:
@@ -28,13 +27,11 @@ func _ready() -> void:
 			note_field.set_reset_animation(idx, NoteField.RepState.PRESSED)
 
 func _process(delta: float) -> void:
-	if not game or not game.note_group or game.note_group.note_list.is_empty():
-		return
-	for note: Note in game.note_group.get_children():
+	if not note_group: return
+	for note: Note in note_group.get_children():
 		if not note.visible or note.hold_size <= 0.0 or note.trip_timer <= 0.0 or note.side != note_field.get_index() or not note.was_hit:
 			continue
 		note.update_hold(delta)
-		var missed: bool = false
 		if keys_held[note.column] == true:
 			note_field.play_animation(note.column, NoteField.RepState.CONFIRM, fmod(note.hold_size, 0.05) == 0)
 			hit_hold_note.emit(note)
@@ -50,14 +47,15 @@ func _process(delta: float) -> void:
 			note.hide_all()
 
 func _get_note(idx: int) -> Note:
-	var note: Note
+	var note: Note = null
+	if not note_group: return note
 	# TODO: move note groups to the strumline or whatever.
-	for main: Note in game.note_group.get_children():
+	for main: Note in note_group.get_children():
 		if main.column == idx and main.side == note_field.get_index():
 			var bound: bool = false
 			var n_idx: int = main.get_index()
-			if game.note_group.get_child_count() > n_idx + 1:
-				var next: Note = game.note_group.get_child(n_idx + 1)
+			if note_group.get_child_count() > n_idx + 1:
+				var next: Note = note_group.get_child(n_idx + 1)
 				bound = next.time < main.time and next.column == main.column and next.side == main.side
 				if bound: note = next
 			if not bound:
@@ -66,9 +64,10 @@ func _get_note(idx: int) -> Note:
 	return note
 
 func _get_note_old(idx: int) -> Note:
-	var notes: Array = game.note_group.get_children().filter(func(n: Note) -> bool:
+	var note: Note = null
+	if not note_group: return note
+	var notes: Array = note_group.get_children().filter(func(n: Note) -> bool:
 		return idx == n.column and note_field.get_index() == n.side)
-	var note: Note
 	if not notes.is_empty():
 		notes.sort_custom(func(a: Note, b: Note) -> bool: return a.time < b.time)
 		note = notes.front()
@@ -76,7 +75,7 @@ func _get_note_old(idx: int) -> Note:
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	var idx: int = get_action_id(event)
-	if not game is Gameplay or not note_field or force_disable_input or idx == -1:
+	if not note_group or not note_field or force_disable_input or idx == -1:
 		return
 	var action: String = controls[idx]
 	keys_held[idx % keys_held.size()] = Input.is_action_pressed(action)
@@ -86,7 +85,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		return
 	if Input.is_action_just_pressed(action):
 		var note: Note = _get_note(idx)
-		if note and note.is_hittable(game.max_hit_window):
+		if note and note.is_hittable(Global.settings.max_hit_window):
 			hit_note.emit(note)
 			if note.was_hit:
 				note.hit_time = note.time - Conductor.playhead
@@ -103,6 +102,10 @@ func _unhandled_key_input(event: InputEvent) -> void:
 			if not Global.settings.ghost_tapping:
 				miss_note.emit(null, idx)
 
+func on_note_hit(note: Note) -> void:
+	if game is Gameplay: game.on_note_hit(note)
+func on_note_miss(note: Note = null, idx: int = -1) -> void:
+	if game is Gameplay: game.on_note_miss(note, idx)
 
 func get_action_id(event: InputEvent) -> int:
 	var id: int = -1

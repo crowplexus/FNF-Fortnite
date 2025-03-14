@@ -28,12 +28,10 @@ func play_animation(idx: int = 0, state: = NoteField.RepState.STATIC, force: boo
 	if receptor is Receptor and receptor.has_method("play_animation"):
 		receptor.play_animation(state, force)
 
-
 func set_reset_timer(idx: int = 0, timer: float = 0.5 * Conductor.crotchet) -> void:
-	var receptor: = get_child(idx % get_child_count())
+	var receptor: = get_receptor(idx)
 	if receptor is Receptor: receptor.reset_timer = timer
 
-
 func set_reset_animation(idx: int = 0, new_state: = NoteField.RepState.STATIC) -> void:
-	var receptor: = get_child(idx % get_child_count())
+	var receptor: = get_receptor(idx)
 	if receptor is Receptor: receptor.reset_state = new_state

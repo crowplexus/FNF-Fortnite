@@ -18,6 +18,8 @@ var master_mute: bool = false:
 var scroll: int = 0
 ## Prevents inputs from punishing you if you press keys when there's no notes to hit.
 @export var ghost_tapping: bool = true
+## Defines the maximum timing window for a note to be hittable.
+@export var max_hit_window: float = 0.18 # 180ms
 ## Locks framerate to your monitor's refresh rate[br]
 ## May help reducing screen tearing.
 @export var vsync: bool = false:

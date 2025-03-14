@@ -6,7 +6,7 @@ signal on_note_spawned(data: NoteData, note: Note)
 signal on_note_deleted(note: Note)
 
 @export var active: bool = true
-var colours: Array[StringName] = [ &"purple", &"blue", &"green", &"red", ]
+
 var note_list: Array[NoteData] = []
 var list_position: int = 0
 
@@ -23,7 +23,6 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	if not active:
 		return
-	
 	try_spawning()
 	move_present_nodes()
 

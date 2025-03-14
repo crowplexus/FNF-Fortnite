@@ -2,14 +2,17 @@ extends Player
 
 func _ready() -> void:
 	note_field = get_parent()
-	if get_tree().current_scene and get_tree().current_scene is Node2D:
+	if get_tree().current_scene:
 		game = get_tree().current_scene
 	hit_note.connect(on_note_hit)
+	set_process_input(false)
+	set_process_unhandled_input(false)
+	set_process_unhandled_key_input(false)
+	set_process_shortcut_input(false)
 
 func _process(delta: float) -> void:
-	if not game or not game.note_group:
-		return
-	for note: Note in game.note_group.get_children():
+	if not note_group: return
+	for note: Note in note_group.get_children():
 		if note.time <= Conductor.playhead and note.side == note_field.get_index():
 			hit_note.emit(note)
 			note.was_hit = true
@@ -22,11 +25,8 @@ func _process(delta: float) -> void:
 				note.allowed_to_hide = true
 			if note.hold_size <= 0.0:
 				if was_hold: note_field.play_animation(note.column, NoteField.RepState.STATIC)
-				game.note_group.on_note_deleted.emit(note)
+				note_group.on_note_deleted.emit(note)
 				note.hide_all()
-
-func _unhandled_key_input(_e: InputEvent) -> void:
-	return # disable input lol...
 
 func on_note_hit(note: Note) -> void:
 	note_field.play_animation(note.column, NoteField.RepState.CONFIRM)

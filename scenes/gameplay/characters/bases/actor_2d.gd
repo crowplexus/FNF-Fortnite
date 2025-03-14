@@ -76,19 +76,17 @@ func die() -> void:
 	instance.process_mode = Node.PROCESS_MODE_ALWAYS
 	# spawn skeleton
 	var pos: Vector2 = self.global_position
-	var index: int = 1
 	if instance.has_node("skeleton"):
-		index = instance.get_node("skeleton").get_index()
 		instance.get_node("skeleton").queue_free()
 	instance.skeleton = death_skeleton.instantiate()
 	instance.skeleton.global_position = pos
 	instance.skeleton.name = "skeleton"
 	instance.add_child(instance.skeleton)
 	instance.move_child(instance.skeleton, 1)
+	get_tree().paused = true
 	# add the scene to to where it should be.
 	#if get_tree().current_scene is Gameplay:
 	#	get_tree().current_scene.hud_layer.add_child(instance)
 	#else:
 	get_tree().current_scene.add_child(instance)
-	get_tree().paused = true
 	instance._start_game_over()

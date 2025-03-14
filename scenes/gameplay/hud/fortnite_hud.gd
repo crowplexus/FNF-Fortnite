@@ -29,7 +29,7 @@ func _ready() -> void:
 	_on_settings_changed()
 	countdown.hide()
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if health_bar.value != _prev_health:
 		health_bar.value = lerp(health_bar.value, floorf(_prev_health), 0.05)
 
@@ -63,11 +63,12 @@ func init_vars() -> void:
 			countdown_timer.name = "timer"
 			countdown_timer.one_shot = true
 			countdown.add_child(countdown_timer)
+		countdown_timer.timeout.connect(countdown_progress)
 
 func start_countdown() -> void:
 	countdown.show()
 	countdown_timer.start(Conductor.crotchet)
-	countdown_timer.timeout.connect(countdown_progress)
+	_countdown_iteration = 0
 
 func countdown_progress() -> void:
 	if _countdown_iteration >= 4:
@@ -104,11 +105,11 @@ func update_score_text() -> void:
 	score_text.text = tr("score_text", &"gameplay") % [
 		(game.tally.score if tally else 0),
 		(game.tally.combo if tally else 0),
-		(fc_string if tally and not fc_string.is_empty() else total_misses if tally else "0"),
+		(fc_string if tally and not fc_string.is_empty() else str(total_misses) if tally else str(0)),
 	]
 	if tally:
-		shield_bar.value = snappedf(game.tally.accuracy, 0.001)
 		accuracy_text.text = "%s%%" % [ snappedf(game.tally.accuracy, 0.001) if tally else 0.0 ]
+		shield_bar.value = clampf(game.tally.accuracy, 0.0, 100.0)
 
 func update_health(health: int) -> void:
 	health_text.text = "%s%%" % health

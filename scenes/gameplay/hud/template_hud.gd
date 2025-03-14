@@ -36,7 +36,7 @@ func update_score_text() -> void:
 	pass
 
 ## Updates the health bar to display a new value.
-func update_health(health: int) -> void:
+func update_health(_health: int) -> void:
 	pass
 
 @warning_ignore("unused_parameter")
