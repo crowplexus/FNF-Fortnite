@@ -37,7 +37,7 @@ func _start_game_over() -> void:
 		camera.position_smoothing_enabled = true # guarantee that it's enabled
 		camera.position_smoothing_speed = 1.0 # slow it down if possible...
 	
-	oops = true#randf_range(0, 100) < .5 # .5% chance
+	oops = randf_range(0, 100) < .5 # .5% chance
 	setup_secret()
 	bg.modulate.a = 0.0
 	bg.visible = true
