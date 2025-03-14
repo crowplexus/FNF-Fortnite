@@ -73,13 +73,13 @@ func set_time(new_time: float) -> void:
 func update(new_time: float) -> void:
 	time = new_time # usually would be incremented by delta but I need this to be *set* for synching purposes
 	if playhead_copies_time: playhead = time
-
+	
 	var ctc: SongTimeChange = Conductor.get_timed_change(time)
 	if bpm != ctc.bpm:
 		#print_debug("Changed BPM from ", bpm, " to ", ctc.bpm, " at timestamp ", time)
 		bpm = ctc.bpm
+	
 	var beat_dt: float = ctc.calculate_beat_delta(time - _prev_time)
-
 	current_beat += beat_dt
 	current_bar += beat_dt * 4.0
 	if absf(_prev_beat - current_beat) >= 1.0:

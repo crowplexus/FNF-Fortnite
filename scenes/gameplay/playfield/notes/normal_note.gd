@@ -28,6 +28,15 @@ func update_hold(delta: float) -> void:
 	super(delta)
 	if hold_tail: hold_tail.position.y = hold_body.position.y + hold_body.size.y + 30
 
+func can_splash() -> bool:
+	# NOTE: if i add covers, maybe "length <= 0.0" should be removed from here.
+	return judgement and judgement.splash_type != Judgement.SplashType.DISABLED and length <= 0.0
+
+func hold_finished() -> void:
+	# testing, idk if i will add hold covers and whatever.
+	if judgement and judgement.splash_type != Judgement.SplashType.DISABLED:
+		display_splash()
+
 func display_splash() -> Node2D:
 	if not note_field or column == -1:
 		return null
@@ -47,5 +56,5 @@ func display_splash() -> Node2D:
 		receptor.add_child(dip)
 	dip.frame = 0
 	dip.show()
-	dip.play("note impact %s %s" %  [ randi_range(1, 2), Note.COLORS[column] ])
+	dip.play("note impact %s %s" %  [ randi_range(1, 2), Note.COLORS[column] ], 1.0)
 	return dip

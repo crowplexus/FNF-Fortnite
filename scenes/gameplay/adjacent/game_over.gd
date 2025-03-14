@@ -3,6 +3,12 @@ extends Node2D
 const CONTINUE_SECRET: AudioStream = preload("res://assets/music/gameover/secret/continue.mp3")
 const GAME_OVER_SECRET: AudioStream = preload("res://assets/music/gameover/secret/game_over.mp3")
 
+const SECRET_MESSAGES: Array[String] = [
+	"Pick up your balls\nand try again.",
+	"Make your girl proud\nand try again.",
+	"Years of rapping yet here you are losing to some brat\ntry again."
+]
+
 @export var skeleton: Actor2D
 
 @onready var music: AudioStreamPlayer = $"music"
@@ -31,11 +37,8 @@ func _start_game_over() -> void:
 		camera.position_smoothing_enabled = true # guarantee that it's enabled
 		camera.position_smoothing_speed = 1.0 # slow it down if possible...
 	
-	oops = randf_range(0, 100) < 2 # 2% chance
-	# hide secret sequence texts
-	if oops: text_tweens.resize(stupid_buttons.size() + 1)
-	for text: Control in stupid_buttons: text.modulate.a = 0.0
-	secret_message.modulate.a = 0.0
+	oops = true#randf_range(0, 100) < .5 # .5% chance
+	setup_secret()
 	bg.modulate.a = 0.0
 	bg.visible = true
 	create_tween().set_ease(Tween.EASE_IN).tween_property(bg, "modulate:a", 0.7, 1.0).set_delay(0.5)
@@ -43,6 +46,20 @@ func _start_game_over() -> void:
 	if skeleton and skeleton.anim:
 		skeleton.anim.animation_finished.connect(_progress_animations)
 		skeleton.play_animation("deathStart", true)
+
+func setup_secret() -> void:
+	if oops: text_tweens.resize(stupid_buttons.size() + 1)
+	for text: Control in stupid_buttons: text.modulate.a = 0.0
+	secret_message.modulate.a = 0.0
+	# translate it all.
+	da_text.text = tr("choice_da", &"russian-bootleg-easteregg")
+	nyet_text.text = tr("choice_nyet", &"russian-bootleg-easteregg")
+	var msg_id: int = SECRET_MESSAGES.find(SECRET_MESSAGES.pick_random()) + 1
+	var message: String = tr("secret_msg_%s" % msg_id, &"russian-bootleg-eastergg")
+	if message.is_empty() or message == "secret_msg_%s" % msg_id:
+		message = tr("secret_msg_fallback", &"russian-bootleg-eastergg")
+	print_debug(message)
+	secret_message.text = message
 
 func _process(delta: float) -> void:
 	if skeleton:
@@ -110,7 +127,7 @@ func _selected_nyet() -> void:
 	music.stream = GAME_OVER_SECRET
 	await get_tree().create_timer(0.5).timeout
 	secret_message.position.y = da_text.position.y
-	secret_message.text = "игра окоичена!"
+	secret_message.text = tr("game_over", &"russian-bootleg-easteregg") #"игра окоичена!"
 	gore.show()
 	secret_message.show()
 	music.play(0.0)

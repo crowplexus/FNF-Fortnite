@@ -13,6 +13,8 @@ var player_strums: NoteField
 static var tally: Tally
 static var chart: BaseChart
 
+var local_tally: Tally
+
 @onready var hitsound: AudioStreamPlayer = $"scream"
 @onready var music: AudioStreamPlayer = $%"music_player"
 @onready var note_group: Node = $"hud_layer/note_group"
@@ -36,7 +38,12 @@ var starting: bool = true
 var health: int = 50 # 50%
 
 func _ready() -> void:
-	if not tally: tally = Tally.new()
+	local_tally = Tally.new()
+	if not tally:
+		tally = Tally.new()
+	else:
+		# merge tallies if it's not a local one
+		tally.merge(local_tally)
 	print_debug("max hit window is ", max_hit_window, " (", max_hit_window * 1000.0, "ms)")
 	if chart and chart.assets:
 		assets = chart.assets
@@ -166,20 +173,20 @@ func on_note_hit(note: Note) -> void:
 	health = clampi(health + 5, 0, 100)
 	var abs_diff: float = absf(note.time - Conductor.playhead)
 	var judged_tier: int = Tally.judge_time(abs_diff * 1000.0)
-	var judgement: Judgement = judgements.list[judged_tier]
-	if note.forced_splash or judgement.splash_type != Judgement.SplashType.DISABLED:
-		note.display_splash()
+	note.judgement = judgements.list[judged_tier]
+	if note.can_splash(): note.display_splash()
 	player.sing(note.column, note.arrow.visible)
 	# Scoring Stuff
-	tally.increase_score(abs_diff * 1000.0)
-	if judgement.combo_break:
-		tally.break_combo()
-	tally.increase_combo(1)
-	tally.update_accuracy(abs_diff * 1000.0)
-	tally.update_tier_score(judged_tier)
+	local_tally.increase_score(abs_diff * 1000.0)
+	if note.judgement.combo_break:
+		local_tally.break_combo()
+	local_tally.increase_combo(1)
+	local_tally.update_accuracy(abs_diff * 1000.0)
+	local_tally.update_tier_score(judged_tier)
 	# Update HUD
-	hud.display_judgement(judgement.texture)
-	hud.display_combo(tally.combo)
+	hud.display_judgement(note.judgement.texture)
+	hud.display_combo(local_tally.combo)
+	tally.merge(local_tally)
 	hud.update_score_text()
 	hud.update_health(health)
 	attempt_to_die()
@@ -190,6 +197,7 @@ func attempt_to_die() -> void:
 		# but instead tweens the notes back up, restarts all counters and plays the song from the beginning
 		hud_layer.hide()
 		music.stop()
+		tally.zero()
 		player.die()
 
 
@@ -203,12 +211,12 @@ func on_note_miss(note: Note, idx: int = -1) -> void:
 	hud.update_health(health)
 	attempt_to_die()
 
-
 func on_beat_hit(beat: float) -> void:
 	if int(beat * 100) % 400 == 0:
 		hud_layer.scale += Vector2(hud.get_bump_scale(), hud.get_bump_scale())
 
-
 func exit_game() -> void:
-	tally = null
+	if tally: # NOTE: save tally before ending later.
+		#tally.save()
+		tally = null
 	Global.change_scene("res://scenes/menu/freeplay_menu.tscn")

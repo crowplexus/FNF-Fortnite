@@ -40,6 +40,35 @@ var accuracy_points: float = 0.0
 ## Counts how many of (tier judgement) you've hit.
 var tiers_scored: Array[int] = [0, 0, 0, 0, 0]
 
+## Resets all counters back to their previous state, or 0 if none specified.[br]
+## Effectively cleaning the tally altogether if unspecified.
+func zero(previous_tally: Tally = null) -> void:
+	score = previous_tally.score if previous_tally else 0
+	misses = previous_tally.misses if previous_tally else 0
+	combo = previous_tally.combo if previous_tally else 0
+	breaks = previous_tally.breaks if previous_tally else 0
+	notes_hit_count = previous_tally.notes_hit_count if previous_tally else 0
+	accuracy_points = previous_tally.accuracy_points if previous_tally else 0.0
+	score_system = previous_tally.score_system if previous_tally else ScoringSystem.Judge
+	for i: int in tiers_scored.size():
+		tiers_scored[i] = previous_tally.tiers_scored[i] if previous_tally else 0
+	update_accuracy_counter()
+
+## Merges a Tally with another.[br]
+func merge(other: Tally, increase: bool = false) -> void:
+	if not other:
+		push_warning("Couldn't merge Tallies, the one provided is null!")
+		return
+	score = other.score + (score if increase else 0)
+	misses = other.misses + (misses if increase else 0)
+	combo = other.combo + (combo if increase else 0)
+	breaks = other.breaks + (breaks if increase else 0)
+	notes_hit_count = other.notes_hit_count + (notes_hit_count if increase else 0)
+	accuracy_points = other.accuracy_points + (accuracy_points if increase else 0.0)
+	for i: int in tiers_scored.size():
+		tiers_scored[i] = other.tiers_scored[i] + (other.tiers_scored[i] if increase else 0)
+	update_accuracy_counter()
+
 ## Increases the score by the amount provided (in ms).
 func increase_score(amount: float) -> void:
 	score += floori(MAX_SCORE - absf(amount))
@@ -64,12 +93,15 @@ func break_combo() -> void:
 ## Updates the accuracy currently displayed.
 func update_accuracy(time: float) -> void:
 	match score_system:
-		ScoringSystem.HitTime:
-			accuracy_points += calc_max_points(judge_time(time), time)
-			accuracy = accuracy_points / (notes_hit_count + misses)
-		_:
-			accuracy_points += calc_judgement_points(judge_time(time))
-			accuracy = accuracy_points / notes_hit_count
+		ScoringSystem.HitTime: accuracy_points += calc_max_points(judge_time(time), time)
+		_: accuracy_points += calc_judgement_points(judge_time(time))
+	update_accuracy_counter() # made this so its easier to update only the counter and not the values that it relies on.
+
+## Updates the accuracy counter only.
+func update_accuracy_counter() -> void:
+	match score_system:
+		ScoringSystem.HitTime: accuracy = accuracy_points / (notes_hit_count + misses)
+		_: accuracy = accuracy_points / notes_hit_count
 
 ## Updates the counter for the tiers you have.
 func update_tier_score(tier: int) -> void:

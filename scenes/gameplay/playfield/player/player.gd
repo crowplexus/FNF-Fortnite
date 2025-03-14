@@ -41,11 +41,12 @@ func _process(delta: float) -> void:
 		else:
 			note.trip_timer -= 0.05 * absf(note.hold_size)
 		if note.trip_timer <= 0.0:
-			#note_field.play_animation(note.column, NoteField.RepState.STATIC, true)
-			note_field.set_reset_timer(note.column, 0.05)
 			miss_note.emit(note, note.column)
 			note.dropped = true
 			note.moving = true
+		if note.trip_timer <= 0.0 or note.hold_size <= 0.0:
+			note_field.set_reset_timer(note.column, 0.05)
+			if not note.dropped: note.hold_finished() # actually held all the way through
 			note.hide_all()
 
 func _get_note(idx: int) -> Note:

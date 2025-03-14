@@ -23,9 +23,6 @@ static func get_scroll_as_vector(scroll: int) -> Vector2:
 	match scroll:
 		1: return Vector2(-1, 1) # Down
 		_: return -Vector2.ONE # Up (default)
-
-## If note splashes should be forced to appear regardless of the judgement.
-@export var forced_splash: bool = false
 ## This is for the notefield that the note is targetting.
 var note_field: NoteField
 ## Data used mainly for hold sizes and whatnot.
@@ -65,9 +62,10 @@ var was_missed: bool = false
 #var late_hitbox: float = 1.0
 #var early_hitbox: float = 1.0
 var hit_time: float = 0.0
+var judgement: Judgement
 # FOR HOLDS
 var dropped: bool = false
-var trip_timer: float = 0.0
+var trip_timer: float = 1.0
 var _stupid_visual_bug: bool = false
 var allowed_to_hide: bool = true
 # VISUALS
@@ -76,6 +74,10 @@ var moving: bool = true
 
 func hide_all() -> void: queue_free()
 func show_all() -> void: show()
+
+## Override this to allow the note to have a note splash.
+func can_splash() -> bool:
+	return false
 
 func _ready() -> void:
 	scroll_mult = Note.get_scroll_as_vector(Global.settings.scroll)
@@ -107,8 +109,12 @@ func update_hold(delta: float) -> void:
 		_stupid_visual_bug = false
 	hold_size -= delta / absf(clip_rect.scale.y)
 	display_hold(hold_size)
-	if hold_size <= 0.0:
+	if hold_size <= 0.0 or trip_timer <= 0.0:
 		hide_all()
+
+## Override this function to do something when you finish holding all the way through.
+func hold_finished() -> void:
+	pass
 
 ## Use this function to initialise the note itself and related properties[br]
 ## Called whenever a note is spawned, remember to also call super(data)

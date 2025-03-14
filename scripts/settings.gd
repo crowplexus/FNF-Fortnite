@@ -4,12 +4,12 @@ extends Resource
 const IGNORED_PROPERTIES: PackedStringArray = ["resource_local_to_scene", "resource_scene_unique_id", "resource_name", "resource_path", "script"]
 
 ## Defines the Master Volume of the game.
-@export var master_volume: int = 20:
+var master_volume: int = 20:
 	set(new_mv):
 		master_volume = clampi(new_mv, 0, 100)
 		AudioServer.set_bus_volume_db(0, linear_to_db(master_volume * 0.01))
 ## Shortcut setting for muting the whole game.
-@export var master_mute: bool = false:
+var master_mute: bool = false:
 	set(new_mute):
 		AudioServer.set_bus_mute(0, new_mute)
 		master_mute = new_mute
@@ -36,7 +36,7 @@ var scroll: int = 0
 	set(new_bi):
 		hud_bump_intensity = clampi(new_bi, 0, 100)
 ## Changes the UI elements and dialogue language.
-@export var language: String = "mk"
+@export var language: String = "en"
 
 
 func _init(use_defaults: bool = false) -> void:
